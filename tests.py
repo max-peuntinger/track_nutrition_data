@@ -50,6 +50,77 @@ class TestCommandLineArguments(unittest.TestCase):
         # Check that the csv file was not modified
         self.assertEqual(csv_last_modified, csv_current_last_modified)
 
+class TestParseArguments(unittest.TestCase):
+    def test_correct_arguments(self):
+        sys.argv = ['get_nutrition_data', 'apple', '100g']
+        pairs, test = get_nutrition_data.parse_arguments()
+        self.assertEqual(pairs, [('apple', '100g')])
+        self.assertFalse(test)
+
+    def test_incorrect_arguments(self):
+        sys.argv = ['get_nutrition_data', 'apple']
+        stderr = StringIO()
+        sys.stderr = stderr
+        with self.assertRaises(get_nutrition_data.InvalidArgumentNumberException):
+                               get_nutrition_data.parse_arguments()
+        self.assertIn('Error, please provide a pair of food and weight', stderr.getvalue())
+
+class TestProcessNutritionData(unittest.TestCase):
+    def setUp(self) -> None:
+        self.data = {
+             'items': [{
+                  'name': 'apple',
+                  'calories': '53.0',
+                  'serving_size_g': 100,
+             }],
+        }
+
+    def test_process_nutrition_data(self):
+        result = get_nutrition_data.process_nutrition_data('apple', '100g', self.data)
+        self.assertIn('timestamp', result)
+        self.assertEqual(result['name'], 'apple')
+        self.assertEqual(result['calories'], 53.0)
+        self.assertEqual(result['serving_size_g'], 100)
+
+class TestWriteToCsv(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            'timestamp': '2023-08-03 15:00:00',
+            'name': 'apple',
+            'calories': 53.0,
+            'serving_size_g': 100.0,
+        }
+        if os.path.exists('test_nutrition.csv'):
+            os.remove('test_nutrition.csv')
+        with open('nutrition_test.csv', 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['timestamp', 'name', 'calories', 'serving_size_g'])
+
+
+        
+    def tearDown(self):
+        if os.path.exists('test_nutrition.csv'):
+            os.remove('test_nutrition.csv')
+
+def test_write_to_csv(self):
+    # Run the function
+    get_nutrition_data.write_to_csv(self.data, 'nutrition_test.csv')
+
+    # Check the output
+    with open('nutrition_test.csv', 'r') as f:
+        reader = csv.reader(f)
+        lines = list(reader)
+
+    expected_data = [
+        ['timestamp', 'name', 'calories', 'serving_size_g'],
+        ['2023-08-03 15:00:00', 'apple', '53.0', '100.0']
+    ]
+
+    # Convert the expected data to match the type of data read from the CSV
+    expected_data = [[str(item) for item in sublist] for sublist in expected_data]
+
+    self.assertEqual(lines, expected_data)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -44,55 +44,65 @@ def get_nutrition_data(food_item, weight):
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")
         return None
-
-
-def main():
+    
+def parse_arguments():
     parser = argparse.ArgumentParser(description='CalorieNinjas API Command Line Tool')
     parser.add_argument('items', nargs='+', help='Pairs of food items and weights to get nutrition data for.')
     parser.add_argument('--test', action='store_true', help='Run in test mode. Does not write to CSV.')
-    
-    # parser.add_argument('food_item', type=str, help='The food item to get nutrition data for.')
-    # parser.add_argument('weight', type=str, help='The weight of the food item.')
 
     args = parser.parse_args()
-    
+
     if len(args.items) % 2 != 0:
-            sys.stderr.write("Error, please provide a pair of food and weight")
-            raise InvalidArgumentNumberException
-    
+        sys.stderr.write("Error, please provide a pair of food and weight")
+        raise InvalidArgumentNumberException
+
     pairs = [(args.items[i], args.items[i+1]) for i in range(0, len(args.items), 2)]
 
-    test = args.test
+    return pairs, args.test
 
-    res = []
+
+def process_nutrition_data(food_item, weight, nutrition_data):
+    berlin_tz = pytz.timezone('Europe/Berlin')
+    berlin_time = datetime.now(berlin_tz)
+    data = {}
+    data["timestamp"] = berlin_time
+    print(f"Nutrition data for {nutrition_data['items'][0]['name']}:")
+    for key, value in nutrition_data["items"][0].items():
+        if key == "name":
+            data[key] = value
+            continue
+        
+        data[key] = float(value) * float(weight[:-1])/100.0
+
+    print(f"{data}")
+
+    return data
+
+
+def write_to_csv(data, f, writer):
+    fieldnames = data.keys()
+    if writer is None:
+        # Initialize writer if it hasn't been initialized yet
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    writer.writerow(data)
+    print("added")
+
+    return writer
+
+
+def main():
+    pairs, test = parse_arguments()
+
     with open('nutrition.csv', 'a') as f:
         writer = None
 
         for food_item, weight in pairs:
             nutrition_data = get_nutrition_data(food_item, weight)
             if nutrition_data:
-                berlin_tz = pytz.timezone('Europe/Berlin')
-                berlin_time = datetime.now(berlin_tz)
-                data = {}
-                data["timestamp"] = berlin_time
-                print(f"Nutrition data for {nutrition_data['items'][0]['name']}:")
-                for key, value in nutrition_data["items"][0].items():
-                    if key == "name":
-                        data[key] = value
-                        continue
-                    
-                    data[key] = float(value) * float(weight[:-1])/100.0
-                if __name__ == '__main__':
-                    print(f"{data}")
+                data = process_nutrition_data(food_item, weight, nutrition_data)
                 if not test:
-                        fieldnames = data.keys()
-                        if writer is None:
-                            # Initialize writer if it hasn't been initialized yet
-                            writer = csv.DictWriter(f, fieldnames=fieldnames)
-                        writer.writerow(data)
-                        if __name__ == '__main__':
-                            print("added")
+                        write_to_csv(data, f, writer)
+
 
 if __name__ == '__main__':
- 
     main()
