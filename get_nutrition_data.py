@@ -1,3 +1,5 @@
+from flask import Flask, request, render_template
+
 import os
 import sys
 import argparse
@@ -15,6 +17,8 @@ API_KEY = os.getenv('API_KEY')
 
 # CalorieNinjas API base URL
 BASE_URL = 'https://api.calorieninjas.com/v1/nutrition'
+
+app = Flask(__name__)
 
 class InvalidArgumentNumberException(Exception):
     pass
@@ -68,7 +72,7 @@ def process_nutrition_data(food_item, weight, nutrition_data):
     return data
 
 
-def write_to_csv(data, f, writer):
+def write_to_csv(data, f, writer=None):
     fieldnames = data.keys()
     if writer is None:
         # Initialize writer if it hasn't been initialized yet
@@ -78,20 +82,19 @@ def write_to_csv(data, f, writer):
     return writer
 
 
-def main():
-    pairs, test = parse_arguments()
 
-    with open('nutrition.csv', 'a', newline='') as f:
-        writer = None
-        for food_item, weight in pairs:
-            nutrition_data = get_nutrition_data(food_item, weight)
-            if nutrition_data:
-                data = process_nutrition_data(food_item, weight, nutrition_data)
-                if not test:
-                    if writer is None:
-                        writer = write_to_csv(data, f, writer)
-                    else:
-                        writer.writerow(data)
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        food_item = request.form.get('food_item')
+        weight = request.form.get('weight')
+        nutrition_data = get_nutrition_data(food_item, weight)
+        if nutrition_data:
+            data = process_nutrition_data(food_item, weight, nutrition_data)
+            with open('nutrition.csv', 'a', newline='') as f:
+                writer = write_to_csv(data, f)
+        return 'Data saved successfully!'
+    return render_template('index.html')
 
 if __name__ == '__main__':
-    main()
+    app.run(debug=True)
