@@ -5,6 +5,7 @@ import get_nutrition_data
 import os
 import csv
 
+
 class TestGetNutritionDataResults(unittest.TestCase):
     def test_apple_has_correct_name(self):
         result = get_nutrition_data.get_nutrition_data('apple', '100g')
@@ -18,8 +19,9 @@ class TestGetNutritionDataResults(unittest.TestCase):
         result = get_nutrition_data.get_nutrition_data('apple', '100g')
         self.assertEqual(result['items'][0]['calories'], 53.0)
 
+
 class TestCommandLineArguments(unittest.TestCase):
-    def test_missing_second_argument(self):
+    def test_missing_weight(self):
         # Replace sys.argv
         sys.argv = ['get_nutrition_data.py', 'apple']
 
@@ -27,11 +29,11 @@ class TestCommandLineArguments(unittest.TestCase):
         stderr = StringIO()
         sys.stderr = stderr
 
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(get_nutrition_data.InvalidArgumentNumberException):
             get_nutrition_data.main()
 
         # Check error output
-        self.assertIn('weight', stderr.getvalue())
+        self.assertIn('Error, please provide a pair of food and weight', stderr.getvalue())
 
     def test_test_flag_prevents_csv_writing(self):
         # Get the last modification time of the csv file
