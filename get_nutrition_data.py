@@ -65,31 +65,33 @@ def main():
     test = args.test
 
     res = []
+    with open('nutrition.csv', 'a') as f:
+        writer = None
 
-    for food_item, weight in pairs:
-        nutrition_data = get_nutrition_data(food_item, weight)
-        if nutrition_data:
-            berlin_tz = pytz.timezone('Europe/Berlin')
-            berlin_time = datetime.now(berlin_tz)
-            data = {}
-            data["timestamp"] = berlin_time
-            print(f"Nutrition data for {nutrition_data['items'][0]['name']}:")
-            for key, value in nutrition_data["items"][0].items():
-                if key == "name":
-                    data[key] = value
-                    continue
-                
-                data[key] = float(value) * float(weight[:-1])/100.0
-            if __name__ == '__main__':
-                print(f"{data}")
-        if not test:
-            with open('nutrition.csv', 'a') as f:
-                fieldnames = data.keys() if data else []
-                print(fieldnames)
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writerow(data)
+        for food_item, weight in pairs:
+            nutrition_data = get_nutrition_data(food_item, weight)
+            if nutrition_data:
+                berlin_tz = pytz.timezone('Europe/Berlin')
+                berlin_time = datetime.now(berlin_tz)
+                data = {}
+                data["timestamp"] = berlin_time
+                print(f"Nutrition data for {nutrition_data['items'][0]['name']}:")
+                for key, value in nutrition_data["items"][0].items():
+                    if key == "name":
+                        data[key] = value
+                        continue
+                    
+                    data[key] = float(value) * float(weight[:-1])/100.0
                 if __name__ == '__main__':
-                    print("added")
+                    print(f"{data}")
+                if not test:
+                        fieldnames = data.keys()
+                        if writer is None:
+                            # Initialize writer if it hasn't been initialized yet
+                            writer = csv.DictWriter(f, fieldnames=fieldnames)
+                        writer.writerow(data)
+                        if __name__ == '__main__':
+                            print("added")
 
 if __name__ == '__main__':
  
