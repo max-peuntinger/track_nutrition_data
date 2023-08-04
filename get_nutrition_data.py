@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for, session
 
 import os
 import sys
@@ -19,6 +19,8 @@ API_KEY = os.getenv('API_KEY')
 BASE_URL = 'https://api.calorieninjas.com/v1/nutrition'
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Replace 'your_secret_key' with a complex unique string
+
 
 class InvalidArgumentNumberException(Exception):
     pass
@@ -82,7 +84,6 @@ def write_to_csv(data, f, writer=None):
     return writer
 
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -91,10 +92,32 @@ def index():
         nutrition_data = get_nutrition_data(food_item, weight)
         if nutrition_data:
             data = process_nutrition_data(food_item, weight, nutrition_data)
-            with open('nutrition.csv', 'a', newline='') as f:
-                writer = write_to_csv(data, f)
+            session['data_to_save'] = data
+            return redirect(url_for('confirm'))
+        return render_template('index.html')
+            # with open('nutrition.csv', 'a', newline='') as f:
+            #     writer = write_to_csv(data, f)
         return 'Data saved successfully!'
     return render_template('index.html')
+
+@app.route('/confirm', methods=['GET', 'POST'])
+def confirm():
+    print(session['data_to_save'])
+    if 'data_to_save' not in session:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        if 'confirm' in request.form:
+            with open('nutrition.csv', 'a',) as f:
+                writer = write_to_csv(session['data_to_save'], f)
+            session.pop('data_to_save', None)
+            return 'Data saved successfully!'
+        else:
+            session.pop('data_to_save', None)
+            return 'Data saving cancelled'
+    else:
+        return render_template('confirm.html', data=session['data_to_save'])
+
 
 if __name__ == '__main__':
     app.run(debug=True)
