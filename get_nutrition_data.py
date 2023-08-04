@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, redirect, url_for, session, flash
+from flask_bootstrap import Bootstrap
 
 import os
 import sys
@@ -20,6 +21,7 @@ API_KEY = os.getenv('API_KEY')
 BASE_URL = 'https://api.calorieninjas.com/v1/nutrition'
 
 app = Flask(__name__)
+Bootstrap(app)
 app.secret_key = 'your_secret_key'  # Replace 'your_secret_key' with a complex unique string
 
 
