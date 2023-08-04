@@ -67,7 +67,7 @@ def process_nutrition_data(food_item, weight, nutrition_data):
         if key == "name":
             data[key] = value
             continue  
-        data[key] = float(value) * float(weight[:-1])/100.0
+        data[key] = float(value) * float(weight)/100.0
     print(f"{data}")
     return data
 
