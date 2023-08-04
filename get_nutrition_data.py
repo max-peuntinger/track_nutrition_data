@@ -6,6 +6,7 @@ import argparse
 import csv
 from datetime import datetime
 import requests
+from collections import OrderedDict
 import pytz
 from dotenv import load_dotenv
 
@@ -74,11 +75,10 @@ def process_nutrition_data(food_item, weight, nutrition_data):
     return data
 
 
-def write_to_csv(data, f, writer=None):
-    fieldnames = data.keys()
+def write_to_csv(data, f, field_order, writer=None):
     if writer is None:
         # Initialize writer if it hasn't been initialized yet
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=field_order)
     writer.writerow(data)
     print("added")
     return writer
@@ -95,8 +95,6 @@ def index():
             session['data_to_save'] = data
             return redirect(url_for('confirm'))
         return render_template('index.html')
-            # with open('nutrition.csv', 'a', newline='') as f:
-            #     writer = write_to_csv(data, f)
         return 'Data saved successfully!'
     return render_template('index.html')
 
@@ -107,9 +105,24 @@ def confirm():
         return redirect(url_for('index'))
     
     if request.method == 'POST':
+        print(session['data_to_save'])
+        FIELD_ORDER = [
+            'timestamp',
+            'name',
+            'calories',
+            'serving_size_g',
+            'fat_total_g',
+            'fat_saturated_g',
+            'protein_g',
+            'sodium_mg',
+            'potassium_mg',
+            'cholesterol_mg',
+            'carbohydrates_total_g',
+            'fiber_g',
+            'sugar_g']
         if 'confirm' in request.form:
             with open('nutrition.csv', 'a',) as f:
-                writer = write_to_csv(session['data_to_save'], f)
+                writer = write_to_csv(session['data_to_save'], f, FIELD_ORDER)
             session.pop('data_to_save', None)
             return 'Data saved successfully!'
         else:
