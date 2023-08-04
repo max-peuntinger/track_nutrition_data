@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, flash
 
 import os
 import sys
@@ -124,10 +124,14 @@ def confirm():
             with open('nutrition.csv', 'a',) as f:
                 writer = write_to_csv(session['data_to_save'], f, FIELD_ORDER)
             session.pop('data_to_save', None)
-            return 'Data saved successfully!'
+            flash('Data saved successfully!', 'success')
+            return redirect(url_for('index'))
+            #return 'Data saved successfully!'
         else:
             session.pop('data_to_save', None)
-            return 'Data saving cancelled'
+            flash('Data saving cancelled', 'info')
+            return redirect(url_for('index'))
+            # return 'Data saving cancelled'
     else:
         return render_template('confirm.html', data=session['data_to_save'])
 
