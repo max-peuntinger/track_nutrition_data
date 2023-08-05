@@ -66,8 +66,7 @@ def process_nutrition_data(food_item, weight, nutrition_data):
     berlin_tz = pytz.timezone('Europe/Berlin')
     berlin_time = datetime.now(berlin_tz)
     data = {}
-    data["timestamp"] = berlin_time
-    print(f"Nutrition data for {nutrition_data['items'][0]['name']}:")
+    data["timestamp"] = berlin_time.isoformat()
     for key, value in nutrition_data["items"][0].items():
         if key == "name":
             data[key] = value
