@@ -8,9 +8,13 @@ from collections import OrderedDict
 import pytz
 from dotenv import load_dotenv
 
+import plotly.graph_objects as go
 from flask import Flask, request, render_template, redirect, url_for, session, flash
 from flask_bootstrap import Bootstrap
-from dash import Dash
+from dash import Dash, html, dcc
+from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
+import pandas as pd
 
 from charts_plotly import create_layout
 
@@ -29,31 +33,64 @@ app.secret_key = 'your_secret_key'  # Replace 'your_secret_key' with a complex u
 
 # Create a new Dash app
 dash_app = Dash(__name__, server=app, url_base_pathname='/dashboard/')
+dash_app.layout = create_layout()
 
-class InvalidArgumentNumberException(Exception):
-    pass
+@dash_app.callback(
+    Output('calories-bar-chart', 'figure'),
+    [Input('interval-component', 'n_intervals')]
+)
+def update_graph_live(n):
+    # Load the data
+    df = pd.read_csv("nutrition.csv")
 
+    # Convert timestamp to datetime format in UTC
+    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
 
-# Function to fetch nutrition data for a given food item
-def get_nutrition_data(food_item, weight):
-    headers = {
-        'X-Api-Key': API_KEY,
-    }
-    params = {
-        'query': f"{food_item} {weight}",
-    }
-    try:
-        response = requests.get(BASE_URL, headers=headers, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            return data
+    # Subtract 2 hours from each timestamp to make 00:00 to 02:00 as previous day
+    df["timestamp"] = df["timestamp"] - pd.DateOffset(hours=2)
+
+    # Define function to categorize time of day
+    def time_of_day(t):
+        if 2 <= t.hour < 12:
+            return '2-12'
+        elif 12 <= t.hour < 17:
+            return '12-17'
+        elif 17 <= t.hour < 22:
+            return '17-22'
         else:
-            print(f"Error: {response.status_code} - {response.text}")
-            return None
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}")
-        return None
-    
+            return '22-2'  # now this includes 00:00 to 02:00 as it is part of the previous day for my day/night cycle
+
+    # Apply function to timestamp
+    df["time_of_day"] = df["timestamp"].apply(time_of_day)
+
+    # Extract the date from the timestamp
+    df["date"] = df["timestamp"].dt.date
+
+    # Group by date and time of day and sum calories
+    grouped = df.groupby(["date", "time_of_day"])["calories"].sum().unstack().fillna(0)
+
+    # Check if the columns exist, if not add them with default value of 0
+    for col in ['2-12', '12-17', '17-22', '22-2']:
+        if col not in grouped.columns:
+            grouped[col] = 0
+
+    # Order the columns
+    grouped = grouped[['2-12', '12-17', '17-22', '22-2']]
+
+    # Create the bar chart
+    fig = go.Figure(data=[
+        go.Bar(name='2-12', x=grouped.index, y=grouped['2-12']),
+        go.Bar(name='12-17', x=grouped.index, y=grouped['12-17']),
+        go.Bar(name='17-22', x=grouped.index, y=grouped['17-22']),
+        go.Bar(name='22-2', x=grouped.index, y=grouped['22-2'])
+    ])
+
+    # Change the bar mode
+    fig.update_layout(barmode='stack')
+
+    return fig
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='CalorieNinjas API Command Line Tool')
     parser.add_argument('items', nargs='+', help='Pairs of food items and weights to get nutrition data for.')
@@ -79,6 +116,26 @@ def process_nutrition_data(food_item, weight, nutrition_data):
         data[key] = float(value) * float(weight)/100.0
     print(f"{data}")
     return data
+
+def get_nutrition_data(food_item, weight):
+    headers = {
+        'X-Api-Key': API_KEY,
+    }
+    params = {
+        'query': f"{food_item} {weight}",
+    }
+    try:
+        response = requests.get(BASE_URL, headers=headers, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            return data
+        else:
+            print(f"Error: {response.status_code} - {response.text}")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
+        return None
+
 
 
 def write_to_csv(data, f, field_order, writer=None):
@@ -141,8 +198,26 @@ def confirm():
     else:
         return render_template('confirm.html', data=session['data_to_save'])
 
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    dash_app.layout = create_layout()
+    return dash_app.index()
+
 # Create the Dash layout
 dash_app.layout = create_layout()
+
+layout = html.Div([
+    dbc.Container([
+        html.H1("Calories per Day"),
+        dcc.Graph(id='calories-bar-chart'),
+        dcc.Interval(
+            id='interval-component',
+            interval=1*1000,  # in milliseconds
+            n_intervals=0
+        )
+    ])
+])
+
 
 if __name__ == '__main__':
     app.run(debug=True)
