@@ -77,6 +77,9 @@ def update_graph_live(n):
     # Order the columns
     grouped = grouped[['2-12', '12-17', '17-22', '22-2']]
 
+    # Calculate total calories for each day
+    total_calories_per_day = grouped.sum(axis=1)
+
     # Create the bar chart
     fig = go.Figure(data=[
         go.Bar(name='2-12', x=grouped.index, y=grouped['2-12']),
@@ -84,6 +87,17 @@ def update_graph_live(n):
         go.Bar(name='17-22', x=grouped.index, y=grouped['17-22']),
         go.Bar(name='22-2', x=grouped.index, y=grouped['22-2'])
     ])
+
+    # Add text annotations for total calories
+    for i, total_calories in enumerate(total_calories_per_day):
+        total_calories_rounded = round(total_calories, 1)  # Round to 1 digit after the decimal point
+        fig.add_trace(go.Scatter(
+            x=[grouped.index[i]],
+            y=[total_calories],
+            text=[f"{total_calories_rounded}"],
+            mode="text",
+            showlegend=False
+        ))
 
     # Change the bar mode
     fig.update_layout(barmode='stack')
