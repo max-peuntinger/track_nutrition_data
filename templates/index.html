@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script>
+        window.onload = function() {
+            var iframe = document.getElementById('dashboard-iframe');
+            iframe.src = iframe.src;
+        };
+    </script>
     <title>Food Nutrition Data</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
@@ -46,5 +52,6 @@
         <input type="number" id="weight" name="weight" required><br>
         <input type="submit" value="Submit">
     </form>
+    <iframe src="/dashboard" width="100%" height="600"></iframe>
 </body>
 </html>
