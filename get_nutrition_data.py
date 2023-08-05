@@ -1,6 +1,3 @@
-from flask import Flask, request, render_template, redirect, url_for, session, flash
-from flask_bootstrap import Bootstrap
-
 import os
 import sys
 import argparse
@@ -10,6 +7,12 @@ import requests
 from collections import OrderedDict
 import pytz
 from dotenv import load_dotenv
+
+from flask import Flask, request, render_template, redirect, url_for, session, flash
+from flask_bootstrap import Bootstrap
+from dash import Dash
+
+from charts_plotly import create_layout
 
 # Load environment variables from .env file
 load_dotenv()
@@ -24,6 +27,8 @@ app = Flask(__name__)
 Bootstrap(app)
 app.secret_key = 'your_secret_key'  # Replace 'your_secret_key' with a complex unique string
 
+# Create a new Dash app
+dash_app = Dash(__name__, server=app, url_base_pathname='/dashboard/')
 
 class InvalidArgumentNumberException(Exception):
     pass
@@ -136,6 +141,8 @@ def confirm():
     else:
         return render_template('confirm.html', data=session['data_to_save'])
 
+# Create the Dash layout
+dash_app.layout = create_layout()
 
 if __name__ == '__main__':
     app.run(debug=True)
