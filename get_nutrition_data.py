@@ -126,7 +126,6 @@ def index():
             session['data_to_save'] = data
             return redirect(url_for('confirm'))
         return render_template('index.html')
-        return 'Data saved successfully!'
     return render_template('index.html')
 
 @app.route('/confirm', methods=['GET', 'POST'])
@@ -156,12 +155,10 @@ def confirm():
             session.pop('data_to_save', None)
             flash('Data saved successfully!', 'success')
             return redirect(url_for('index'))
-            #return 'Data saved successfully!'
         else:
             session.pop('data_to_save', None)
             flash('Data saving cancelled', 'info')
             return redirect(url_for('index'))
-            # return 'Data saving cancelled'
     else:
         return render_template('confirm.html', data=session['data_to_save'])
 
