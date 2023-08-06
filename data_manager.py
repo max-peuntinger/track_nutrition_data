@@ -10,13 +10,12 @@ class DataManager:
     def read_data(self):
         if self.reader:
             return self.reader.read_data()
-        raise Exception("No reader provided") #TODO: write a custom exception
+        return None
     
     def write_data(self, data):
         if self.writer:
             self.writer.write_data(data)
-        else:
-            raise Exception("No writer provided") #TODO: use custom exception
+        return None
     
 class CSVReader:
     def __init__(self, file_path):
