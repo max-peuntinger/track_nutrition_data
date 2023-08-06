@@ -103,20 +103,6 @@ def update_graph_live(n):
 
     return fig
 
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='CalorieNinjas API Command Line Tool')
-    parser.add_argument('items', nargs='+', help='Pairs of food items and weights to get nutrition data for.')
-    parser.add_argument('--test', action='store_true', help='Run in test mode. Does not write to CSV.')
-
-    args = parser.parse_args()
-    if len(args.items) % 2 != 0:
-        sys.stderr.write("Error, please provide a pair of food and weight")
-        raise InvalidArgumentNumberException
-    pairs = [(args.items[i], args.items[i+1]) for i in range(0, len(args.items), 2)]
-    return pairs, args.test
-
-
 def process_nutrition_data(food_item, weight, nutrition_data):
     berlin_tz = pytz.timezone('Europe/Berlin')
     berlin_time = datetime.now(berlin_tz)
