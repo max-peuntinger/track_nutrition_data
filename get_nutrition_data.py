@@ -1,9 +1,6 @@
-import os
 import csv
 from datetime import datetime
-import requests
 import pytz
-from dotenv import load_dotenv
 
 import plotly.graph_objects as go
 from flask import Flask, request, render_template, redirect, url_for, session, flash
@@ -14,15 +11,9 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 
 from charts_plotly import create_layout
+from foodninja_api import get_food_info_from_api
 
-# Load environment variables from .env file
-load_dotenv()
 
-# Retrieve the API key from the environment variable
-API_KEY = os.getenv('API_KEY')
-
-# CalorieNinjas API base URL
-BASE_URL = 'https://api.calorieninjas.com/v1/nutrition'
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -114,25 +105,6 @@ def process_nutrition_data(food_item, weight, nutrition_data):
     print(f"{data}")
     return data
 
-def get_nutrition_data(food_item, weight):
-    headers = {
-        'X-Api-Key': API_KEY,
-    }
-    params = {
-        'query': f"{food_item} {weight}",
-    }
-    try:
-        response = requests.get(BASE_URL, headers=headers, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            return data
-        else:
-            print(f"Error: {response.status_code} - {response.text}")
-            return None
-    except requests.exceptions.RequestException as e:
-        print(f"Error: {e}")
-        return None
-
 
 def write_to_csv(data, f, field_order, writer=None):
     if writer is None:
@@ -148,7 +120,7 @@ def index():
     if request.method == 'POST':
         food_item = request.form.get('food_item')
         weight = request.form.get('weight')
-        nutrition_data = get_nutrition_data(food_item, weight)
+        nutrition_data = get_food_info_from_api(food_item, weight)
         if nutrition_data:
             data = process_nutrition_data(food_item, weight, nutrition_data)
             session['data_to_save'] = data
@@ -156,6 +128,7 @@ def index():
         return render_template('index.html')
         return 'Data saved successfully!'
     return render_template('index.html')
+
 
 @app.route('/confirm', methods=['GET', 'POST'])
 def confirm():
@@ -193,6 +166,7 @@ def confirm():
             # return 'Data saving cancelled'
     else:
         return render_template('confirm.html', data=session['data_to_save'])
+
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
