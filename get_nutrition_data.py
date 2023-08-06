@@ -147,9 +147,6 @@ def confirm():
             # Use the DataManager instance to write the data
             print(session['data_to_save'])
             data_manager_writer.write_data(session['data_to_save'])
-
-            # data_writer =  DataWriter(field_order=FIELD_ORDER)
-            # data_writer.write_to_csv(session['data_to_save'])
             session.pop('data_to_save', None)
             flash('Data saved successfully!', 'success')
             return redirect(url_for('index'))
@@ -168,18 +165,6 @@ def dashboard():
 
 # Create the Dash layout
 dash_app.layout = create_layout()
-
-layout = html.Div([
-    dbc.Container([
-        html.H1("Calories per Day"),
-        dcc.Graph(id='calories-bar-chart'),
-        dcc.Interval(
-            id='interval-component',
-            interval=1*1000,  # in milliseconds
-            n_intervals=0
-        )
-    ])
-])
 
 
 if __name__ == '__main__':
