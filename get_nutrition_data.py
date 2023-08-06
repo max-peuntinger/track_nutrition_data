@@ -129,10 +129,8 @@ def index():
         return 'Data saved successfully!'
     return render_template('index.html')
 
-
 @app.route('/confirm', methods=['GET', 'POST'])
 def confirm():
-    print(session['data_to_save'])
     if 'data_to_save' not in session:
         return redirect(url_for('index'))
     
