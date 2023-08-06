@@ -11,7 +11,10 @@ import pandas as pd
 
 from charts_plotly import create_layout
 from foodninja_api import get_food_info_from_api
-from data_writer import DataWriter
+from data_manager import DataManager, CSVReader, CSVWriter
+
+csv_reader = CSVReader("nutrition.csv")
+data_manager_reader = DataManager(reader=csv_reader)
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -27,7 +30,7 @@ dash_app.layout = create_layout()
 )
 def update_graph_live(n):
     # Load the data
-    df = pd.read_csv("nutrition.csv")
+    df = data_manager_reader.read_data()
 
     # Convert timestamp to datetime format in UTC
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
@@ -139,8 +142,14 @@ def confirm():
             'fiber_g',
             'sugar_g']
         if 'confirm' in request.form:
-            data_writer = DataWriter(field_order=FIELD_ORDER)
-            data_writer.write_to_csv(session['data_to_save'])
+            csv_writer = CSVWriter("nutrition.csv", FIELD_ORDER)
+            data_manager_writer = DataManager(writer=csv_writer)
+            # Use the DataManager instance to write the data
+            print(session['data_to_save'])
+            data_manager_writer.write_data(session['data_to_save'])
+
+            # data_writer =  DataWriter(field_order=FIELD_ORDER)
+            # data_writer.write_to_csv(session['data_to_save'])
             session.pop('data_to_save', None)
             flash('Data saved successfully!', 'success')
             return redirect(url_for('index'))
