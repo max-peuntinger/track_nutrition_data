@@ -136,7 +136,6 @@ def get_nutrition_data(food_item, weight):
         return None
 
 
-
 def write_to_csv(data, f, field_order, writer=None):
     if writer is None:
         # Initialize writer if it hasn't been initialized yet
