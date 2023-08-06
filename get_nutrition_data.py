@@ -4,7 +4,6 @@ import argparse
 import csv
 from datetime import datetime
 import requests
-from collections import OrderedDict
 import pytz
 from dotenv import load_dotenv
 
