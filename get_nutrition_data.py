@@ -1,4 +1,3 @@
-import csv
 from datetime import datetime
 import pytz
 
@@ -12,8 +11,7 @@ import pandas as pd
 
 from charts_plotly import create_layout
 from foodninja_api import get_food_info_from_api
-
-
+from data_writer import DataWriter
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -106,15 +104,6 @@ def process_nutrition_data(food_item, weight, nutrition_data):
     return data
 
 
-def write_to_csv(data, f, field_order, writer=None):
-    if writer is None:
-        # Initialize writer if it hasn't been initialized yet
-        writer = csv.DictWriter(f, fieldnames=field_order)
-    writer.writerow(data)
-    print("added")
-    return writer
-
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -150,8 +139,8 @@ def confirm():
             'fiber_g',
             'sugar_g']
         if 'confirm' in request.form:
-            with open('nutrition.csv', 'a',) as f:
-                writer = write_to_csv(session['data_to_save'], f, FIELD_ORDER)
+            data_writer = DataWriter(field_order=FIELD_ORDER)
+            data_writer.write_to_csv(session['data_to_save'])
             session.pop('data_to_save', None)
             flash('Data saved successfully!', 'success')
             return redirect(url_for('index'))
