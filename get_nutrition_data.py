@@ -1,6 +1,4 @@
 import os
-import sys
-import argparse
 import csv
 from datetime import datetime
 import requests
