@@ -101,59 +101,119 @@ def process_nutrition_data(food_item, weight, nutrition_data):
             data[key] = value
             continue  
         data[key] = float(value) * float(weight)/100.0
-    print(f"{data}")
+    # print(f"{data}")
     return data
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        food_item = request.form.get('food_item')
-        weight = request.form.get('weight')
-        nutrition_data = get_food_info_from_api(food_item, weight)
-        if nutrition_data:
-            data = process_nutrition_data(food_item, weight, nutrition_data)
-            session['data_to_save'] = data
-            return redirect(url_for('confirm'))
-        return render_template('index.html')
-    return render_template('index.html')
+        if 'food_item' in request.form:
+            food_item = request.form.get('food_item')
+            weight = request.form.get('weight')
+            nutrition_data = get_food_info_from_api(food_item, weight)
+            if nutrition_data:
+                data = process_nutrition_data(food_item, weight, nutrition_data)
+                session['data_to_save'] = data
+        elif 'confirm' in request.form and 'data_to_save' in session:
+            if request.form['confirm'] == 'yes':
 
-@app.route('/confirm', methods=['GET', 'POST'])
-def confirm():
-    if 'data_to_save' not in session:
-        return redirect(url_for('index'))
-    
-    if request.method == 'POST':
-        print(session['data_to_save'])
-        FIELD_ORDER = [
-            'timestamp',
-            'name',
-            'calories',
-            'serving_size_g',
-            'fat_total_g',
-            'fat_saturated_g',
-            'protein_g',
-            'sodium_mg',
-            'potassium_mg',
-            'cholesterol_mg',
-            'carbohydrates_total_g',
-            'fiber_g',
-            'sugar_g']
-        if 'confirm' in request.form:
-            csv_writer = CSVWriter("nutrition.csv", FIELD_ORDER)
-            data_manager_writer = DataManager(writer=csv_writer)
-            # Use the DataManager instance to write the data
-            print(session['data_to_save'])
-            data_manager_writer.write_data(session['data_to_save'])
+                FIELD_ORDER = [
+                'timestamp',
+                'name',
+                'calories',
+                'serving_size_g',
+                'fat_total_g',
+                'fat_saturated_g',
+                'protein_g',
+                'sodium_mg',
+                'potassium_mg',
+                'cholesterol_mg',
+                'carbohydrates_total_g',
+                'fiber_g',
+                'sugar_g']
+
+                csv_writer = CSVWriter("nutrition.csv", FIELD_ORDER)
+                data_manager_writer = DataManager(writer=csv_writer)
+                data_manager_writer.write_data(session['data_to_save'])
+                flash('Data saved successfully!', 'success')
+
+            else:
+                flash('Aborted entry!', 'failure')
             session.pop('data_to_save', None)
-            flash('Data saved successfully!', 'success')
-            return redirect(url_for('index'))
-        else:
-            session.pop('data_to_save', None)
-            flash('Data saving cancelled', 'info')
-            return redirect(url_for('index'))
-    else:
-        return render_template('confirm.html', data=session['data_to_save'])
+
+    return render_template('index.html', data=session.get('data_to_save'))
+
+
+
+
+# @app.route('/confirm', methods=['GET', 'POST'])
+# def confirm():
+#     if 'confirm' in request.form:
+#         if 'data_to_save' in session:
+#             # return redirect(url_for('index'))
+#             FIELD_ORDER = [
+#                 'timestamp',
+#                 'name',
+#                 'calories',
+#                 'serving_size_g',
+#                 'fat_total_g',
+#                 'fat_saturated_g',
+#                 'protein_g',
+#                 'sodium_mg',
+#                 'potassium_mg',
+#                 'cholesterol_mg',
+#                 'carbohydrates_total_g',
+#                 'fiber_g',
+#                 'sugar_g']
+#             csv_writer = CSVWriter("nutrition.csv", FIELD_ORDER)
+#             data_manager_writer = DataManager(writer=csv_writer)
+#             # Use the DataManager instance to write the data
+#             data_manager_writer.write_data(session['data_to_save'])
+#             session.pop('data_to_save', None)
+#             flash('Data saved successfully!', 'success')
+#         else:
+#             # Handle the initial submission of the food item and weight
+#             food_item = request.form.get('food_item')
+#             weight = request.form.get('weight')
+#             nutrition_data = get_food_info_from_api(food_item, weight)
+#             if nutrition_data:
+#                 data = process_nutrition_data(food_item, weight, nutrition_data)
+#                 session['data_to_save'] = data
+#             return render_template('index.html', data=session.get('data_to_save'))
+
+         
+        # if request.method == 'POST':
+        #     print(session['data_to_save'])
+        #     FIELD_ORDER = [
+        #         'timestamp',
+        #         'name',
+        #         'calories',
+        #         'serving_size_g',
+        #         'fat_total_g',
+        #         'fat_saturated_g',
+        #         'protein_g',
+        #         'sodium_mg',
+        #         'potassium_mg',
+        #         'cholesterol_mg',
+        #         'carbohydrates_total_g',
+        #         'fiber_g',
+        #         'sugar_g']
+        #     if 'confirm' in request.form:
+        #         csv_writer = CSVWriter("nutrition.csv", FIELD_ORDER)
+        #         data_manager_writer = DataManager(writer=csv_writer)
+        #         # Use the DataManager instance to write the data
+        #         print(session['data_to_save'])
+        #         data_manager_writer.write_data(session['data_to_save'])
+        #         session.pop('data_to_save', None)
+        #         flash('Data saved successfully!', 'success')
+        #         return redirect(url_for('index'))
+        #     else:
+        #         session.pop('data_to_save', None)
+        #         flash('Data saving cancelled', 'info')
+        #         return redirect(url_for('index'))
+        # else:
+        #     return render_template('confirm.html', data=session['data_to_save'])
 
 
 @app.route('/dashboard', methods=['GET'])
