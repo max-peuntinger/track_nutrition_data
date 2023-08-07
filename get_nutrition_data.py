@@ -1,14 +1,11 @@
 from datetime import datetime
 import pytz
-
 import plotly.graph_objects as go
 from flask import Flask, request, render_template, redirect, url_for, session, flash
 from flask_bootstrap import Bootstrap
-from dash import Dash, html, dcc
+from dash import Dash
 from dash.dependencies import Input, Output
-import dash_bootstrap_components as dbc
 import pandas as pd
-
 from charts_plotly import create_layout
 from foodninja_api import get_food_info_from_api
 from data_manager import DataManager, CSVReader, CSVWriter
@@ -23,6 +20,9 @@ app.secret_key = 'your_secret_key'  # Replace 'your_secret_key' with a complex u
 # Create a new Dash app
 dash_app = Dash(__name__, server=app, url_base_pathname='/dashboard/')
 dash_app.layout = create_layout()
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 @dash_app.callback(
     Output('calories-bar-chart', 'figure'),
@@ -162,10 +162,3 @@ def confirm():
 def dashboard():
     dash_app.layout = create_layout()
     return dash_app.index()
-
-# Create the Dash layout
-dash_app.layout = create_layout()
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
