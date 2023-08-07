@@ -6,9 +6,9 @@ from flask_bootstrap import Bootstrap
 from dash import Dash
 from dash.dependencies import Input, Output
 import pandas as pd
-from charts_plotly import create_layout
 from foodninja_api import get_food_info_from_api
 from data_manager import DataManager, CSVReader, CSVWriter
+from charts_plotly import create_layout
 
 csv_reader = CSVReader("nutrition.csv")
 data_manager_reader = DataManager(reader=csv_reader)
@@ -21,8 +21,6 @@ app.secret_key = 'your_secret_key'  # Replace 'your_secret_key' with a complex u
 dash_app = Dash(__name__, server=app, url_base_pathname='/dashboard/')
 dash_app.layout = create_layout()
 
-if __name__ == '__main__':
-    app.run(debug=True)
 
 @dash_app.callback(
     Output('calories-bar-chart', 'figure'),
@@ -162,3 +160,6 @@ def confirm():
 def dashboard():
     dash_app.layout = create_layout()
     return dash_app.index()
+
+if __name__ == '__main__':
+    app.run(debug=True)
