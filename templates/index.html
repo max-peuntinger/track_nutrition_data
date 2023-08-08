@@ -52,18 +52,6 @@
         <input type="number" id="weight" name="weight" required><br>
         <input type="submit" value="Submit">
     </form>
-    {% if data %}
-    <form action="/" method="post">
-        <h2>Confirm the following information:</h2>
-        <ul>
-            <li>Food Item: {{ data['name'] }}</li>
-            <li>Weight in grams: {{ data['serving_size_g'] }}</li>
-            <li>Calories: {{ data['calories'] }}</li>
-        </ul>
-        <button type="submit" name="confirm" value="yes">Confirm</button>
-        <button type="submit" name="confirm" value="no">Cancel</button>
-    </form>
-    {% endif %}
     <form method="POST">
         <label for="date">date:</label><br>
         <input type="date" id="date" name="date" required><br>
