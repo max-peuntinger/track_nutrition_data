@@ -129,24 +129,21 @@ def index():
             if nutrition_data:
                 data = process_nutrition_data(food_item, weight, nutrition_data)
                 session['data_to_save'] = data
-        elif 'confirm' in request.form and 'data_to_save' in session:
-            if request.form['confirm'] == 'yes':
-
                 FIELD_ORDER = [
-                'timestamp',
-                'name',
-                'calories',
-                'serving_size_g',
-                'fat_total_g',
-                'fat_saturated_g',
-                'protein_g',
-                'sodium_mg',
-                'potassium_mg',
-                'cholesterol_mg',
-                'carbohydrates_total_g',
-                'fiber_g',
-                'sugar_g']
-
+                    'timestamp',
+                    'name',
+                    'calories',
+                    'serving_size_g',
+                    'fat_total_g',
+                    'fat_saturated_g',
+                    'protein_g',
+                    'sodium_mg',
+                    'potassium_mg',
+                    'cholesterol_mg',
+                    'carbohydrates_total_g',
+                    'fiber_g',
+                    'sugar_g'
+                    ]
                 csv_writer = CSVWriter("nutrition.csv", FIELD_ORDER)
                 data_manager_writer = DataManager(writer=csv_writer)
                 data_manager_writer.write_data(session['data_to_save'])
