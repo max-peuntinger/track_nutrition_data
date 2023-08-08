@@ -94,7 +94,7 @@ def update_graph_live(n):
 # Define the callback
 @dash_app.callback(
     Output('weight-line-chart', 'figure'),
-    Input('interval-weight-chart', 'n_intervals')
+    Input('interval-component', 'n_intervals')
 )
 def update_weight_chart(n_intervals):
     # Read the weight data
