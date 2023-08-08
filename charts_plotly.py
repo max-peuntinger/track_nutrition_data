@@ -8,7 +8,7 @@ csv_reader = CSVReader("weight.csv")
 weight_data = csv_reader.read_data()
 
 # Create a line chart
-fig = px.line(weight_data, x='date', y='weight', title='Weight Over Time')
+fig = px.line(weight_data, x='date', y='bodyweight', title='Weight Over Time')
 
 def create_layout():
     layout = html.Div([

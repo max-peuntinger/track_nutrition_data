@@ -101,7 +101,7 @@ def update_weight_chart(n_intervals):
     csv_reader = CSVReader("weight.csv")
     weight_data = csv_reader.read_data()
 
-    fig = px.line(weight_data, x='date', y='weight', title='Weight Over Time')
+    fig = px.line(weight_data, x='date', y='weight', title='Weight Over Time') #px is defined in charts_plotly
 
     return fig
 
@@ -151,10 +151,18 @@ def index():
                 data_manager_writer = DataManager(writer=csv_writer)
                 data_manager_writer.write_data(session['data_to_save'])
                 flash('Data saved successfully!', 'success')
-
-            else:
-                flash('Aborted entry!', 'failure')
-            session.pop('data_to_save', None)
+        elif 'bodyweight' in request.form:
+            weight_data = {}
+            weight_data['date'] = request.form.get('date')
+            weight_data['bodyweight'] = request.form.get('bodyweight')
+            csv_writer = CSVWriter("weight.csv", ['date', 'bodyweight'])
+            data_manager_writer = DataManager(writer=csv_writer)
+            data_manager_writer.write_data(weight_data)
+            flash('Data saved successfully!', 'success')
+        else:
+            flash('Aborted entry!', 'failure')
+        session.pop('data_to_save', None)
+            
 
     return render_template('index.html', data=session.get('data_to_save'))
 
