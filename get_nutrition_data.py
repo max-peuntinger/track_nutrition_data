@@ -9,6 +9,8 @@ import pandas as pd
 from foodninja_api import get_food_info_from_api
 from data_manager import DataManager, CSVReader, CSVWriter
 from charts_plotly import create_layout
+import plotly.express as px
+
 
 csv_reader = CSVReader("nutrition.csv")
 data_manager_reader = DataManager(reader=csv_reader)
@@ -101,7 +103,7 @@ def update_weight_chart(n_intervals):
     csv_reader = CSVReader("weight.csv")
     weight_data = csv_reader.read_data()
 
-    fig = px.line(weight_data, x='date', y='weight', title='Weight Over Time') #px is defined in charts_plotly
+    fig = px.line(weight_data, x='date', y='bodyweight') 
 
     return fig
 
