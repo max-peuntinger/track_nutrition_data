@@ -33,6 +33,11 @@
             background: #cce5ff;
             color: #004085;
         }
+        /* Add this new style */
+        .form-container {
+            display: flex;
+            justify-content: space-between; /* Optional: Adds space between the forms */
+        }
     </style>
 </head>
 <body>
@@ -45,20 +50,23 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
-    <form method="POST">
-        <label for="food_item">Food Item:</label><br>
-        <input type="text" id="food_item" name="food_item" required><br>
-        <label for="weight">Weight (in grams):</label><br>
-        <input type="number" id="weight" name="weight" required><br>
-        <input type="submit" value="Submit">
-    </form>
-    <form method="POST">
-        <label for="date">date:</label><br>
-        <input type="date" id="date" name="date" required><br>
-        <label for="bodyweight">bodyweight (in kg):</label><br>
-        <input type="number" id="bodyweight" name="bodyweight" required step="0.1"><br>
-        <input type="submit" value="Submit">
-    </form>
+    <!-- Wrap the forms in a container div -->
+    <div class="form-container">
+        <form method="POST">
+            <label for="food_item">Food Item:</label><br>
+            <input type="text" id="food_item" name="food_item" required><br>
+            <label for="weight">Weight (in grams):</label><br>
+            <input type="number" id="weight" name="weight" required><br>
+            <input type="submit" value="Submit">
+        </form>
+        <form method="POST">
+            <label for="date">date:</label><br>
+            <input type="date" id="date" name="date" required><br>
+            <label for="bodyweight">bodyweight (in kg):</label><br>
+            <input type="number" id="bodyweight" name="bodyweight" required step="0.1"><br>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
     <iframe src="/dashboard" width="100%" height="600"></iframe>
 </body>
 </html>
