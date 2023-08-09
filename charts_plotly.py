@@ -17,11 +17,11 @@ def create_layout():
                 html.Div([
                     html.H4('Calories per Day'),
                     dcc.Graph(id='calories-bar-chart'),
-                ], style={'width': '50%', 'display': 'inline-block'}),
+                ], style={'width': '50%', 'height': '400px', 'display': 'inline-block'}),
                 html.Div([
                     html.H4("Weight Over Time"),
                     dcc.Graph(id='weight-line-chart', figure=fig),
-                ], style={'width': '50%', 'display': 'inline-block'}),
+                ], style={'width': '50%', 'height': '400px', 'display': 'inline-block'}),
             ]),
             dcc.Interval(
                 id='interval-component',

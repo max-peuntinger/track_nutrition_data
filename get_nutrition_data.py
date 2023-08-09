@@ -82,8 +82,13 @@ def update_graph_live(n):
             mode="text",
             showlegend=False
         ))
-    # Change the bar mode
-    fig.update_layout(barmode='stack')
+    fig.update_layout(barmode='stack', margin=dict(l=20, r=20, t=20, b=60))
+    fig.update_layout(
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)'
+    )
+    fig.update_xaxes(showline=False, zeroline=False)
+    fig.update_yaxes(showline=False, zeroline=False)
 
     return fig
 
@@ -97,6 +102,15 @@ def update_weight_chart(n_intervals):
     csv_reader = CSVReader("weight.csv")
     weight_data = csv_reader.read_data()
     fig = px.line(weight_data, x='date', y='bodyweight') 
+    fig.update_layout(margin=dict(l=20, r=20, t=20, b=0))
+    fig.update_xaxes(title_text="")
+    fig.update_yaxes(title_text="")
+    fig.update_layout(
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)'
+    )
+    fig.update_xaxes(showline=False, zeroline=False)
+    fig.update_yaxes(showline=False, zeroline=False)
     return fig
 
 
