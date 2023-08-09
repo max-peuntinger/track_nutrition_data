@@ -11,18 +11,14 @@ from data_manager import DataManager, CSVReader, CSVWriter
 from charts_plotly import create_layout
 import plotly.express as px
 
-
 csv_reader = CSVReader("nutrition.csv")
 data_manager_reader = DataManager(reader=csv_reader)
-
 app = Flask(__name__)
 Bootstrap(app)
 app.secret_key = 'your_secret_key'  # Replace 'your_secret_key' with a complex unique string
-
 # Create a new Dash app
 dash_app = Dash(__name__, server=app, url_base_pathname='/dashboard/')
 dash_app.layout = create_layout()
-
 
 @dash_app.callback(
     Output('calories-bar-chart', 'figure'),
@@ -76,7 +72,6 @@ def update_graph_live(n):
         go.Bar(name='17-22', x=grouped.index, y=grouped['17-22']),
         go.Bar(name='22-2', x=grouped.index, y=grouped['22-2'])
     ])
-
     # Add text annotations for total calories
     for i, total_calories in enumerate(total_calories_per_day):
         total_calories_rounded = round(total_calories, 1)  # Round to 1 digit after the decimal point
@@ -87,7 +82,6 @@ def update_graph_live(n):
             mode="text",
             showlegend=False
         ))
-
     # Change the bar mode
     fig.update_layout(barmode='stack')
 
@@ -102,9 +96,7 @@ def update_weight_chart(n_intervals):
     # Read the weight data
     csv_reader = CSVReader("weight.csv")
     weight_data = csv_reader.read_data()
-
     fig = px.line(weight_data, x='date', y='bodyweight') 
-
     return fig
 
 
@@ -161,8 +153,7 @@ def index():
         else:
             flash('Aborted entry!', 'failure')
         session.pop('data_to_save', None)
-            
-
+        return redirect('/')
     return render_template('index.html', data=session.get('data_to_save'))
 
 
