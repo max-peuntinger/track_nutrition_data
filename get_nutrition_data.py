@@ -109,6 +109,7 @@ def update_weight_chart(_):
     fig.update_layout(margin=dict(l=20, r=20, t=20, b=0))
     fig.update_xaxes(title_text="")
     fig.update_yaxes(title_text="")
+    #fig.update_yaxes(rangemode="tozero")  # Set the y-axis to start at 0
     fig.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',
     paper_bgcolor='rgba(0,0,0,0)'
