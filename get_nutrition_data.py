@@ -16,21 +16,21 @@ csv_reader = CSVReader("nutrition.csv")
 data_manager_reader = DataManager(reader=csv_reader)
 app = Flask(__name__)
 Bootstrap(app)
-app.secret_key = 'your_secret_key'  # Replace 'your_secret_key' with a complex unique string
+app.secret_key = 'your_secret_key'
 # Create a new Dash app
 dash_app = Dash(__name__, server=app, url_base_pathname='/dashboard/')
 dash_app.layout = create_layout()
+
 
 @dash_app.callback(
     Output('calories-bar-chart', 'figure'),
     [Input('interval-component', 'n_intervals')]
 )
-def update_graph_live(n):
+def update_graph_live(_):
     # Load the data
-    csv_reader = CSVReader('nutrition.csv')
-    df = csv_reader.read_data()
-    print(df)
-    # df = data_manager_reader.read_data()
+    print("in func")
+    sqlreader = SQLite3Reader('bodyweight.db')
+    df = sqlreader.read_data("SELECT * FROM food_eaten ORDER BY timestamp")
 
     # Convert timestamp to datetime format in UTC
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
@@ -96,15 +96,16 @@ def update_graph_live(n):
 
     return fig
 
+
 # Define the callback
 @dash_app.callback(
     Output('weight-line-chart', 'figure'),
     Input('interval-component', 'n_intervals')
 )
-def update_weight_chart(n_intervals):
+def update_weight_chart(_):
     # Read the weight data
     sql3reader = SQLite3Reader("bodyweight.db")
-    bodyweight_data = sql3reader.read_data("SELECT * FROM bodyweight")
+    weight_data = sql3reader.read_data("SELECT * FROM bodyweight ORDER BY date")
     fig = px.line(weight_data, x='date', y='bodyweight') 
     fig.update_layout(margin=dict(l=20, r=20, t=20, b=0))
     fig.update_xaxes(title_text="")
@@ -141,25 +142,8 @@ def index():
             if nutrition_data:
                 data = process_nutrition_data(food_item, weight, nutrition_data)
                 session['data_to_save'] = data
-                FIELD_ORDER = [
-                    'timestamp',
-                    'name',
-                    'calories',
-                    'serving_size_g',
-                    'fat_total_g',
-                    'fat_saturated_g',
-                    'protein_g',
-                    'sodium_mg',
-                    'potassium_mg',
-                    'cholesterol_mg',
-                    'carbohydrates_total_g',
-                    'fiber_g',
-                    'sugar_g'
-                    ]
-                csv_writer = CSVWriter("nutrition.csv", FIELD_ORDER)
-                #data_manager_writer = DataManager(writer=csv_writer)
-                #data_manager_writer.write_data(session['data_to_save'])
-                csv_writer.write_data(session['data_to_save'])
+                sqlwriter = SQLite3Writer('bodyweight.db')
+                sqlwriter.write_data("food_eaten", session["data_to_save"])
                 flash('Data saved successfully!', 'success')
         elif 'bodyweight' in request.form:
             weight_data = {}
@@ -167,10 +151,6 @@ def index():
             weight_data['bodyweight'] = request.form.get('bodyweight')
             sql3writer = SQLite3Writer('bodyweight.db')
             sql3writer.write_data('bodyweight', weight_data)
-            
-            #csv_writer = CSVWriter("weight.csv", ['date', 'bodyweight'])
-            #data_manager_writer = DataManager(writer=csv_writer)
-            #data_manager_writer.write_data(weight_data)
             flash('Data saved successfully!', 'success')
         else:
             flash('Aborted entry!', 'failure')
