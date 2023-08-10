@@ -28,7 +28,6 @@ dash_app.layout = create_layout()
 )
 def update_graph_live(_):
     # Load the data
-    print("in func")
     sqlreader = SQLite3Reader('bodyweight.db')
     df = sqlreader.read_data("SELECT * FROM food_eaten ORDER BY timestamp")
 
