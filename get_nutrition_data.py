@@ -143,14 +143,14 @@ def index():
                 data = process_nutrition_data(food_item, weight, nutrition_data)
                 session['data_to_save'] = data
                 sqlwriter = SQLite3Writer('bodyweight.db')
-                sqlwriter.write_data("food_eaten", session["data_to_save"])
+                sqlwriter.create_data("food_eaten", session["data_to_save"])
                 flash('Data saved successfully!', 'success')
         elif 'bodyweight' in request.form:
             weight_data = {}
             weight_data['date'] = request.form.get('date')
             weight_data['bodyweight'] = request.form.get('bodyweight')
             sql3writer = SQLite3Writer('bodyweight.db')
-            sql3writer.write_data('bodyweight', weight_data)
+            sql3writer.create_data('bodyweight', weight_data)
             flash('Data saved successfully!', 'success')
         else:
             flash('Aborted entry!', 'failure')

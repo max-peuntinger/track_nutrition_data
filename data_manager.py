@@ -60,12 +60,29 @@ class SQLite3Writer:
     def __init__(self, db_path):
         self.db_path = db_path
 
-    def write_data(self, table_name, data):
+    def create_data(self, table_name, data):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         columns = ', '.join(data.keys())
         placeholders = ', '.join(['?'] * len(data))
         query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
         cursor.execute(query, tuple(data.values()))
+        conn.commit()
+        conn.close()
+
+    def update_data(self, table_name, data, row_id):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
+        query =f"UPDATE {table_name} SET {set_column} WHERE id = ?"
+        cursor.execute(query, tuple(data.value()) + (row_id,))
+        conn.commit()
+        conn.close()
+
+    def delete_data(self, table_name, row_id):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        query = f"DELETE FROM {table_name} WHERE id = ?"
+        cursor.execute(query, (row_id,))
         conn.commit()
         conn.close()
