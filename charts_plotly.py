@@ -1,14 +1,14 @@
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 import plotly.express as px
-from data_manager import CSVReader
+from data_manager import SQLite3Reader
 
 
-csv_reader = CSVReader("weight.csv")
-weight_data = csv_reader.read_data()
+sql3reader = SQLite3Reader("bodyweight.db")
+bodyweight_data = sql3reader.read_data("SELECT * FROM bodyweight")
 
 # Create a line chart
-fig = px.line(weight_data, x='date', y='bodyweight')
+fig = px.line(bodyweight_data, x='date', y='bodyweight')
 
 def create_layout():
     layout = html.Div([

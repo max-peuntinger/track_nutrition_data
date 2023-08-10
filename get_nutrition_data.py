@@ -7,9 +7,10 @@ from dash import Dash
 from dash.dependencies import Input, Output
 import pandas as pd
 from foodninja_api import get_food_info_from_api
-from data_manager import DataManager, CSVReader, CSVWriter
+from data_manager import DataManager, CSVReader, CSVWriter, SQLite3Reader, SQLite3Writer
 from charts_plotly import create_layout
 import plotly.express as px
+
 
 csv_reader = CSVReader("nutrition.csv")
 data_manager_reader = DataManager(reader=csv_reader)
@@ -26,7 +27,10 @@ dash_app.layout = create_layout()
 )
 def update_graph_live(n):
     # Load the data
-    df = data_manager_reader.read_data()
+    csv_reader = CSVReader('nutrition.csv')
+    df = csv_reader.read_data()
+    print(df)
+    # df = data_manager_reader.read_data()
 
     # Convert timestamp to datetime format in UTC
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
@@ -99,8 +103,8 @@ def update_graph_live(n):
 )
 def update_weight_chart(n_intervals):
     # Read the weight data
-    csv_reader = CSVReader("weight.csv")
-    weight_data = csv_reader.read_data()
+    sql3reader = SQLite3Reader("bodyweight.db")
+    bodyweight_data = sql3reader.read_data("SELECT * FROM bodyweight")
     fig = px.line(weight_data, x='date', y='bodyweight') 
     fig.update_layout(margin=dict(l=20, r=20, t=20, b=0))
     fig.update_xaxes(title_text="")
@@ -153,16 +157,20 @@ def index():
                     'sugar_g'
                     ]
                 csv_writer = CSVWriter("nutrition.csv", FIELD_ORDER)
-                data_manager_writer = DataManager(writer=csv_writer)
-                data_manager_writer.write_data(session['data_to_save'])
+                #data_manager_writer = DataManager(writer=csv_writer)
+                #data_manager_writer.write_data(session['data_to_save'])
+                csv_writer.write_data(session['data_to_save'])
                 flash('Data saved successfully!', 'success')
         elif 'bodyweight' in request.form:
             weight_data = {}
             weight_data['date'] = request.form.get('date')
             weight_data['bodyweight'] = request.form.get('bodyweight')
-            csv_writer = CSVWriter("weight.csv", ['date', 'bodyweight'])
-            data_manager_writer = DataManager(writer=csv_writer)
-            data_manager_writer.write_data(weight_data)
+            sql3writer = SQLite3Writer('bodyweight.db')
+            sql3writer.write_data('bodyweight', weight_data)
+            
+            #csv_writer = CSVWriter("weight.csv", ['date', 'bodyweight'])
+            #data_manager_writer = DataManager(writer=csv_writer)
+            #data_manager_writer.write_data(weight_data)
             flash('Data saved successfully!', 'success')
         else:
             flash('Aborted entry!', 'failure')
