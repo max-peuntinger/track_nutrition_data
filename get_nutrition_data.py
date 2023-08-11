@@ -158,6 +158,27 @@ def index():
         return redirect('/')
     return render_template('index.html', data=session.get('data_to_save'))
 
+@app.route('/manage', methods=['GET'])
+def manage_bodyweight():
+    # Read all the bodyweight entries from the database
+    sql_reader = SQLite3Reader("bodyweight.db")
+    bodyweight_data = sql_reader.read_data("SELECT * FROM bodyweight ORDER BY date")
+
+    # Render the template and pass the data
+    return render_template('manage_bodyweight.html', bodyweight_data=bodyweight_data)
+
+@app.route('/delete_bodyweight/<int:entry_id>', methods=['POST'])
+def delete_bodyweight(entry_id):
+    # Delete the entry from the database
+    sql_writer = SQLite3Writer('bodyweight.db')
+    sql_writer.delete_data('bodyweight', entry_id)
+
+    # Flash a success message
+    flash('Entry deleted successfully!', 'success')
+
+    # Redirect back to the manage bodyweight page
+    return redirect(url_for('manage_bodyweight'))
+
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
