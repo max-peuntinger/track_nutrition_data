@@ -3,10 +3,8 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 from data_manager import SQLite3Reader
 
-
 sql3reader = SQLite3Reader("bodyweight.db")
 bodyweight_data = sql3reader.read_data("SELECT * FROM bodyweight")
-
 # Create a line chart
 fig = px.line(bodyweight_data, x='date', y='bodyweight')
 fig.update_layout(yaxis=dict(range=[0, None]))

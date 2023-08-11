@@ -73,7 +73,6 @@ class SQLite3Writer:
     def update_data(self, table_name, data, row_id):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
         query =f"UPDATE {table_name} SET {set_column} WHERE id = ?"
         cursor.execute(query, tuple(data.value()) + (row_id,))
         conn.commit()
