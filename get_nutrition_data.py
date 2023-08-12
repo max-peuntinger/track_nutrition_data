@@ -160,11 +160,33 @@ def index():
         return redirect('/')
     return render_template('index.html', data=session.get('data_to_save'))
 
+@app.route('/manage_food', methods=['GET'])
+def manage_food():
+    sql_reader =SQLite3Reader('bodyweight.db')
+    food_data = sql_reader.read_data("SELECT * FROM food_eaten ORDER BY timestamp DESC")
+
+    # Render the template and pass the data
+    return render_template('manage_food.html', food_data=food_data)
+
+
+@app.route('/delte_food_eaten/<int:entry_id>', methods=['POST'])
+def delete_food_eaten(entry_id):
+    # Delete the entry from the database
+    sql_writer = SQLite3Writer('bodyweight.db')
+    sql_writer.delete_data("food_eaten", entry_id)
+
+    # flash a success message
+    flash('ENtry deleted successfully!', 'success')
+
+    # Redirect back to the manage food page
+    return redirect(url_for('manage_food'))
+
+
 @app.route('/manage', methods=['GET'])
 def manage_bodyweight():
     # Read all the bodyweight entries from the database
     sql_reader = SQLite3Reader("bodyweight.db")
-    bodyweight_data = sql_reader.read_data("SELECT * FROM bodyweight ORDER BY date")
+    bodyweight_data = sql_reader.read_data("SELECT * FROM bodyweight ORDER BY date DESC")
 
     # Render the template and pass the data
     return render_template('manage_bodyweight.html', bodyweight_data=bodyweight_data)
