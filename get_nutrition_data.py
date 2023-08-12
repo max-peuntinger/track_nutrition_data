@@ -137,13 +137,11 @@ def index():
     if request.method == 'POST':
         if 'food_item' in request.form:
             timestamp = request.form.get('timestamp')
-            print(timestamp)
             food_item = request.form.get('food_item')
             weight = request.form.get('weight')
             nutrition_data = get_food_info_from_api(food_item, weight)
             if nutrition_data:
                 data = process_nutrition_data(food_item, weight, nutrition_data)
-                print(data)
                 data["timestamp"] = timestamp
                 session['data_to_save'] = data
                 sqlwriter = SQLite3Writer('bodyweight.db')
