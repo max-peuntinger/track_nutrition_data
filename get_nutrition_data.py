@@ -169,7 +169,7 @@ def manage_food():
     return render_template('manage_food.html', food_data=food_data)
 
 
-@app.route('/delte_food_eaten/<int:entry_id>', methods=['POST'])
+@app.route('/delete_food_eaten/<int:entry_id>', methods=['POST'])
 def delete_food_eaten(entry_id):
     # Delete the entry from the database
     sql_writer = SQLite3Writer('bodyweight.db')

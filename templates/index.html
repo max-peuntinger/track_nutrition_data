@@ -10,6 +10,8 @@
     <title>Food Nutrition Data</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         form {
             margin: auto;
@@ -41,7 +43,12 @@
     </style>
 </head>
 <body>
-    <h1>Enter Food Item and Weight</h1>
+    <nav>
+        <a href="{{ url_for('index') }}" class="{{ 'active-nav-link' if request.endpoint == 'index' else '' }}">Index</a> |
+        <a href="{{ url_for('manage_food') }}" class="{{ 'active-nav-link' if request.endpoint == 'manage_food' else '' }}">Manage Food</a> |
+        <a href="{{ url_for('manage_bodyweight') }}" class="{{ 'active-nav-link' if request.endpoint == 'manage_bodyweight' else '' }}">Manage Bodyweight</a>
+    </nav>
+    <h1>Weight Loss Dashboard</h1>
     <!-- Display flashed messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -50,30 +57,43 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
+    <button id="toggle-food-entry" onclick="toggleFoodEntry()">Enter Data</button> <!-- Toggle button -->
+    <div id="food-entry-section">
     <!-- Wrap the forms in a container div -->
-    <div class="form-container">
-        <form method="POST">
-            <label for="timestamp">Timestamp:</label><br>
-            <input type="datetime-local" id="timestamp" name="timestamp" value="" required><br>
-            <label for="food_item">Food Item:</label><br>
-            <input type="text" id="food_item" name="food_item" required><br>
-            <label for="weight">Weight (in grams):</label><br>
-            <input type="number" id="weight" name="weight" required><br>
-            <input type="submit" value="Submit">
-        </form>
-        <script>
-            document.getElementById('timestamp').value = new Date().toISOString().slice(0, 16);
-        </script>
-        <form method="POST">
-            <label for="date">date:</label><br>
-            <input type="date" id="date" name="date" required><br>
-            <label for="bodyweight">bodyweight (in kg):</label><br>
-            <input type="number" id="bodyweight" name="bodyweight" required step="0.1"><br>
-            <input type="submit" value="Submit">
-        </form>
-        <script>
-            document.getElementById('date').value = new Date().toISOString().slice(0, 10);
-        </script>
+        <div class="form-container">
+            <form method="POST">
+                <label for="timestamp">Timestamp:</label><br>
+                <input type="datetime-local" id="timestamp" name="timestamp" value="" required><br>
+                <label for="food_item">Food Item:</label><br>
+                <input type="text" id="food_item" name="food_item" required><br>
+                <label for="weight">Weight (in grams):</label><br>
+                <input type="number" id="weight" name="weight" required><br>
+                <input type="submit" value="Submit">
+            </form>
+            <script>
+                document.getElementById('timestamp').value = new Date().toISOString().slice(0, 16);
+            </script>
+            <form method="POST">
+                <label for="date">date:</label><br>
+                <input type="date" id="date" name="date" required><br>
+                <label for="bodyweight">bodyweight (in kg):</label><br>
+                <input type="number" id="bodyweight" name="bodyweight" required step="0.1"><br>
+                <input type="submit" value="Submit">
+            </form>
+            <script>
+                document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+            </script>
+            <script>
+                function toggleFoodEntry() {
+                    var section = document.getElementById('food-entry-section');
+                    if (section.style.display === 'none') {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                }
+            </script>
+        </div>
     </div>
     <iframe src="/dashboard" width="100%" height="600"></iframe>
 </body>
