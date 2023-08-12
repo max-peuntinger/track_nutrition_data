@@ -55,6 +55,13 @@ class SQLite3Reader:
         conn.close()
         return df
     
+    def read_single_data(self, id, table):
+        conn = sqlite3.connect(self.db_path)
+        query = f"SELECT * FROM {table} WHERE id = {id}"
+        df = pd.read_sql(query, conn)
+        conn.close()
+        return df
+    
 
 class SQLite3Writer:
     def __init__(self, db_path):
@@ -71,12 +78,21 @@ class SQLite3Writer:
         conn.close()
 
     def update_data(self, table_name, data, row_id):
+        # Create a list of column assignments
+        set_assignments = [f"{column} = ?" for column in data.keys()]
+        # Join the assignments into a single string
+        set_clause = ", ".join(set_assignments)
+        # Create the query string
+        query = f"UPDATE {table_name} SET {set_clause} WHERE id = ?"
+        # Create a list of values to be used in the query
+        values = list(data.values()) + [row_id]
+        # Execute the query
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        query =f"UPDATE {table_name} SET {set_column} WHERE id = ?"
-        cursor.execute(query, tuple(data.value()) + (row_id,))
+        cursor.execute(query, values)
         conn.commit()
         conn.close()
+
 
     def delete_data(self, table_name, row_id):
         conn = sqlite3.connect(self.db_path)

@@ -19,7 +19,8 @@
                 <tr>
                     <th>Date</th>
                     <th>Weight (kg)</th>
-                    <th>Action</th>
+                    <th>Modify</th>
+                    <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,12 +29,15 @@
                     <td>{{ entry.date }}</td>
                     <td>{{ entry.bodyweight }}</td>
                     <td>
+                        <a href="{{ url_for('modify_bodyweight', id=entry.id) }}" class="btn btn-warning">Modify</a> <!-- Updated line -->
+                    </td>
+                    <td>
                         <form action="{{ url_for('delete_bodyweight', entry_id=entry.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this entry?');">
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </td>
                 </tr>
-            {% endfor %}
+                {% endfor %}
             </tbody>
         </table>
     </div>

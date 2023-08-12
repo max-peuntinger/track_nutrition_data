@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Manage Food Entries</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+<body>
+    <h1>Modify Bodyweight Entry</h1>
+    <form method="POST">
+        <label for="date">Date:</label><br>
+        <input type="date" id="date" name="date" value="{{ entry.date }}" required><br>
+        <label for="bodyweight">Bodyweight (in kg):</label><br>
+        <input type="number" id="bodyweight" name="bodyweight" value="{{ entry.bodyweight }}" required step="0.1"><br>
+        <input type="submit" value="Update">
+    </form>
+</body>
+</html>
