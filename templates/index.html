@@ -53,12 +53,17 @@
     <!-- Wrap the forms in a container div -->
     <div class="form-container">
         <form method="POST">
+            <label for="timestamp">Timestamp:</label><br>
+            <input type="datetime-local" id="timestamp" name="timestamp" value="" required><br>
             <label for="food_item">Food Item:</label><br>
             <input type="text" id="food_item" name="food_item" required><br>
             <label for="weight">Weight (in grams):</label><br>
             <input type="number" id="weight" name="weight" required><br>
             <input type="submit" value="Submit">
         </form>
+        <script>
+            document.getElementById('timestamp').value = new Date().toISOString().slice(0, 16);
+        </script>
         <form method="POST">
             <label for="date">date:</label><br>
             <input type="date" id="date" name="date" required><br>
@@ -66,6 +71,9 @@
             <input type="number" id="bodyweight" name="bodyweight" required step="0.1"><br>
             <input type="submit" value="Submit">
         </form>
+        <script>
+            document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+        </script>
     </div>
     <iframe src="/dashboard" width="100%" height="600"></iframe>
 </body>
