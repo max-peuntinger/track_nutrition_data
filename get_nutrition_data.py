@@ -204,6 +204,24 @@ def delete_bodyweight(entry_id):
     return redirect(url_for('manage_bodyweight'))
 
 
+@app.route('/modify_bodyweight/<int:id>', methods=['GET', 'POST'])
+def modify_bodyweight(id):
+    sql_reader = SQLite3Reader('bodyweight.db')
+    bodyweight_entry = sql_reader.read_single_data(id=id, table='bodyweight')  # Make sure this method is implemented
+
+    if request.method == 'POST':
+        weight_data = {}
+        weight_data['date'] = request.form.get('date')
+        weight_data['bodyweight'] = request.form.get('bodyweight')
+        sql_writer = SQLite3Writer('bodyweight.db')
+        sql_writer.update_data('bodyweight', weight_data, id)
+  # Make sure this method is implemented
+        flash('Bodyweight entry updated successfully!', 'success')  # Add a success message
+        return redirect(url_for('manage_bodyweight'))  # Redirect back to the manage bodyweight page
+
+    return render_template('modify_bodyweight.html', entry=bodyweight_entry)
+
+
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     dash_app.layout = create_layout()
