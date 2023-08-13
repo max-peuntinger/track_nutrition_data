@@ -118,7 +118,5 @@ def update_weight_chart(_):
     return fig
 
 
-    
-
 if __name__ == '__main__':
     app.run(debug=True)
