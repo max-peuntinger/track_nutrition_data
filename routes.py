@@ -1,8 +1,8 @@
 from datetime import datetime
 import pytz
 from flask import request, render_template, redirect, url_for, session, flash
-from foodninja_api import get_food_info_from_api
-from data_manager import SQLite3Writer, SQLite3Reader
+from api.foodninja_api import get_food_info_from_api
+from data.data_manager import SQLite3Writer, SQLite3Reader
 
 def register_routes(app):
 
@@ -91,11 +91,6 @@ def register_routes(app):
             return redirect(url_for('manage_bodyweight'))  # Redirect back to the manage bodyweight page
 
         return render_template('modify_bodyweight.html', entry=bodyweight_entry)
-
-    # @app.route('/dashboard', methods=['GET'])
-    # def dashboard():
-    #     dash_app.layout = create_layout()
-    #     return dash_app.index()
     
 
 def process_nutrition_data(food_item, weight, nutrition_data):

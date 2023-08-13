@@ -1,7 +1,7 @@
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 import plotly.express as px
-from data_manager import SQLite3Reader
+from data.data_manager import SQLite3Reader
 
 sql3reader = SQLite3Reader("bodyweight.db")
 bodyweight_data = sql3reader.read_data("SELECT * FROM bodyweight")
