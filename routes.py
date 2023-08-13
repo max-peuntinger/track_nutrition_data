@@ -78,7 +78,7 @@ def register_routes(app):
     @app.route('/modify_bodyweight/<int:id>', methods=['GET', 'POST'])
     def modify_bodyweight(id):
         sql_reader = SQLite3Reader('bodyweight.db')
-        bodyweight_entry = sql_reader.read_single_data(id=id, table='bodyweight')  # Make sure this method is implemented
+        bodyweight_entry = sql_reader.read_single_data(id=id, table='bodyweight')
 
         if request.method == 'POST':
             weight_data = {}
@@ -87,10 +87,28 @@ def register_routes(app):
             sql_writer = SQLite3Writer('bodyweight.db')
             sql_writer.update_data('bodyweight', weight_data, id)
     # Make sure this method is implemented
-            flash('Bodyweight entry updated successfully!', 'success')  # Add a success message
+            flash('Bodyweight entry updated successfully!', 'success')
             return redirect(url_for('manage_bodyweight'))  # Redirect back to the manage bodyweight page
+        bodyweight_entry_dict = bodyweight_entry.iloc[0].to_dict()
+        return render_template('modify_bodyweight.html', entry=bodyweight_entry_dict)
 
-        return render_template('modify_bodyweight.html', entry=bodyweight_entry)
+    @app.route('/modify_food/<int:id>', methods=['GET', 'POST'])
+    def modify_food(id):
+        sql_reader = SQLite3Reader('bodyweight.db')
+        food_entry = sql_reader.read_single_data(id=id, table='food_eaten')
+        
+
+        if request.method == 'POST':
+            food_data = {}
+            food_data['timestamp'] = request.form.get('timestamp')
+            food_data['name'] = request.form.get('name')
+            food_data['serving_size_g'] = request.form.get('serving_size_g')
+            # sql_writer = SQLite3Writer('bodyweight.db')
+            # sql_writer.update_data('bodyweight', weight_data, id)
+            flash('Food entry updated successfully!', 'success')
+            return redirect(url_for('manage_food'))  # Redirect back to the manage bodyweight page
+        food_entry_dict = food_entry.iloc[0].to_dict()
+        return render_template('modify_food.html', entry=food_entry_dict)
     
 
 def process_nutrition_data(food_item, weight, nutrition_data):
