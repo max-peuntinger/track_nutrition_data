@@ -5,8 +5,8 @@ from dash.dependencies import Input, Output
 from flask import Flask
 from flask_bootstrap import Bootstrap
 import plotly.express as px
-from data_manager import DataManager, CSVReader, SQLite3Reader
-from charts_plotly import create_layout
+from data.data_manager import DataManager, CSVReader, SQLite3Reader
+from charts.charts_plotly import create_layout
 from routes import register_routes
 
 
