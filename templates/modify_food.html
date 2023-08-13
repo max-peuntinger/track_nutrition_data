@@ -10,11 +10,11 @@
     <h1>Modify Food Entry</h1>
     <form method="POST">
         <label for="timestamp">Timestamp:</label><br>
-        <input type="datetime-local" id="timestamp" name="timestamp" value={{ entry.timestamp }} required><br>
+        <input type="datetime-local" id="timestamp" name="timestamp" value="{{ entry.timestamp }}" required><br>
         <label for="name">Food Eaten:</label><br>
-        <input type="text" id="name" name="name" value={{ entry.name }} required><br>
+        <input type="text" id="name" name="name" value="{{ entry.name }}" required><br>
         <label for="serving_size_g">Amount (in grams):</label><br>
-        <input type="number" id="serving_size_g" name="serving_size_g" value={{ entry.serving_size_g }} required><br>
+        <input type="number" id="serving_size_g" name="serving_size_g" value="{{ entry.serving_size_g }}" required><br>
         <input type="submit" value="Submit">
     </form>
 </body>
