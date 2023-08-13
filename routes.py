@@ -92,10 +92,10 @@ def register_routes(app):
 
         return render_template('modify_bodyweight.html', entry=bodyweight_entry)
 
-    @app.route('/dashboard', methods=['GET'])
-    def dashboard():
-        dash_app.layout = create_layout()
-        return dash_app.index()
+    # @app.route('/dashboard', methods=['GET'])
+    # def dashboard():
+    #     dash_app.layout = create_layout()
+    #     return dash_app.index()
     
 
 def process_nutrition_data(food_item, weight, nutrition_data):
