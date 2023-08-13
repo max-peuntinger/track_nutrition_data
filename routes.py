@@ -14,7 +14,10 @@ def register_routes(app):
                 food_item = request.form.get('food_item')
                 weight = request.form.get('weight')
                 nutrition_data = get_food_info_from_api(food_item, weight)
-                if nutrition_data:
+                if not nutrition_data or not nutrition_data["items"]:
+                    flash('invalid entry!', 'failure')
+                    session.pop('data_to_save', None)
+                if nutrition_data and nutrition_data["items"]:
                     data = process_nutrition_data(food_item, weight, nutrition_data)
                     data["timestamp"] = timestamp
                     session['data_to_save'] = data
