@@ -97,6 +97,7 @@ def register_routes(app):
         sql_reader = SQLite3Reader('bodyweight.db')
         food_entry = sql_reader.read_single_data(id=id, table='food_eaten')
         old_name = food_entry.iloc[0]['name']
+        old_serving_size_g = food_entry.iloc[0]['serving_size_g']
 
         if request.method == 'POST':
             food_data = {}
@@ -105,7 +106,7 @@ def register_routes(app):
             food_data['serving_size_g'] = request.form.get('serving_size_g')
 
             # Check if the name of the food has changed, then the api needs to be called
-            if food_data['name'] != old_name:
+            if food_data['name'] != old_name or food_data['serving_size_g'] != old_serving_size_g:
                 weight = food_data['serving_size_g']
                 nutrition_data = get_food_info_from_api(food_data['name'], weight)
                 food_data.update(process_nutrition_data(food_data['name'], weight, nutrition_data, timestamp = food_data['timestamp']))
