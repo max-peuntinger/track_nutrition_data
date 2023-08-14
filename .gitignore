@@ -1,1 +1,3 @@
-data.csvmv 
+__pycache__/
+bodyweight.db
+data/
