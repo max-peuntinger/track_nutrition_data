@@ -7,6 +7,7 @@ from dash.dependencies import Input, Output
 from flask import Flask
 from flask_bootstrap import Bootstrap
 import plotly.express as px
+from data_tools.data_processing import filter_data_by_date, time_of_day
 from data_tools.data_manager import SQLite3Reader
 from charts.charts_plotly import create_layout
 from routes import register_routes
@@ -37,17 +38,6 @@ def update_graph_live(
     )
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
     df["timestamp"] = df["timestamp"]
-
-    def time_of_day(t: datetime) -> str:
-        # Define function to categorize time of day
-        if 2 <= t.hour < 12:
-            return "2-12"
-        elif 12 <= t.hour < 17:
-            return "12-17"
-        elif 17 <= t.hour < 22:
-            return "17-22"
-        else:
-            return "22-2"  # now this includes 00:00 to 02:00 as it is part of the previous day for my day/night cycle
 
     df["time_of_day"] = df["timestamp"].apply(time_of_day)
     df["date"] = df["timestamp"].dt.date
@@ -111,16 +101,6 @@ def update_graph_live(
     fig.update_yaxes(showline=False, zeroline=False)
 
     return fig
-
-
-def filter_data_by_date(
-    df: pd.DataFrame, start_date: Optional[datetime], end_date: Optional[datetime]
-) -> pd.DataFrame:
-    if start_date:
-        df = df[df["date"] >= start_date]
-    if end_date:
-        df = df[df["date"] <= end_date]
-    return df
 
 
 @dash_app.callback(

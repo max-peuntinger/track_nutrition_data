@@ -5,7 +5,6 @@ from data_tools.data_manager import SQLite3Reader
 
 sql3reader = SQLite3Reader("data/bodyweight.db")
 bodyweight_data = sql3reader.read_data("SELECT * FROM bodyweight")
-# Create a line chart
 fig = px.line(bodyweight_data, x="date", y="bodyweight")
 fig.update_layout(yaxis=dict(range=[0, None]))
 

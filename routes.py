@@ -3,6 +3,7 @@ import pytz
 from flask import request, render_template, redirect, url_for, session, flash
 from api.foodninja_api import get_food_info_from_api
 from data_tools.data_manager import SQLite3Writer, SQLite3Reader
+from data_tools.data_processing import process_nutrition_data
 
 
 def register_routes(app):
@@ -18,7 +19,7 @@ def register_routes(app):
                     flash("invalid entry!", "failure")
                     session.pop("data_to_save", None)
                 if nutrition_data and nutrition_data["items"]:
-                    data = process_nutrition_data(food_item, weight, nutrition_data)
+                    data = process_nutrition_data(weight, nutrition_data)
                     data["timestamp"] = timestamp
                     session["data_to_save"] = data
                     sqlwriter = SQLite3Writer("data/bodyweight.db")
@@ -108,7 +109,6 @@ def register_routes(app):
                 nutrition_data = get_food_info_from_api(food_data["name"], weight)
                 food_data.update(
                     process_nutrition_data(
-                        food_data["name"],
                         weight,
                         nutrition_data,
                         timestamp=food_data["timestamp"],
@@ -122,19 +122,3 @@ def register_routes(app):
 
         food_entry_dict = food_entry.iloc[0].to_dict()
         return render_template("modify_food.html", entry=food_entry_dict)
-
-
-def process_nutrition_data(food_item, weight, nutrition_data, timestamp=None):
-    data = {}
-    if not timestamp:
-        berlin_tz = pytz.timezone("Europe/Berlin")
-        berlin_time = datetime.now(berlin_tz)
-        data["timestamp"] = berlin_time.isoformat()
-    else:
-        data["timestamp"] = timestamp
-    for key, value in nutrition_data["items"][0].items():
-        if key == "name":
-            data[key] = value
-            continue
-        data[key] = float(value) * float(weight) / 100.0
-    return data
