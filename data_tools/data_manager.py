@@ -34,18 +34,11 @@ class CSVWriter:
         self.field_order = field_order
 
     def write_data(self, data):
-        # Check if the file already exists
         write_header = not os.path.exists(self.file_path)
-
-        # Open the file in append mode
         with open(self.file_path, mode="a", newline="") as file:
             writer = csv.DictWriter(file, fieldnames=self.field_order)
-
-            # Write the header if the file is new
             if write_header:
                 writer.writeheader()
-
-            # Write the data as a row
             writer.writerow(data)
 
 
@@ -82,15 +75,10 @@ class SQLite3Writer:
         conn.close()
 
     def update_data(self, table_name, data, row_id):
-        # Create a list of column assignments
         set_assignments = [f"{column} = ?" for column in data.keys()]
-        # Join the assignments into a single string
         set_clause = ", ".join(set_assignments)
-        # Create the query string
         query = f"UPDATE {table_name} SET {set_clause} WHERE id = ?"
-        # Create a list of values to be used in the query
         values = list(data.values()) + [row_id]
-        # Execute the query
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute(query, values)
