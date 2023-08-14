@@ -18,6 +18,15 @@ def create_layout():
                     start_date_placeholder_text="Start Date",
                     end_date_placeholder_text="End Date"
                 )], style={'display': 'block', 'text-align': 'left'}),
+                dcc.Dropdown(
+                    id='time-frame-dropdown',
+                    options=[
+                        {'label': 'Daily', 'value': 'daily'},
+                        {'label': 'Weekly', 'value': 'weekly'},
+                        {'label': 'Monthly', 'value': 'monthly'}
+                    ],
+                    value='daily'  # default value
+                ),  
                 html.Div([
                     html.H4('Calories per Day'),
                     dcc.Graph(id='calories-bar-chart'),
