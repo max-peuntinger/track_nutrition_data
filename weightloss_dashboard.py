@@ -1,5 +1,6 @@
 from datetime import datetime
 import pandas as pd
+from typing import List, Optional, Union, Any
 import plotly.graph_objects as go
 from dash import Dash
 from dash.dependencies import Input, Output
@@ -11,8 +12,8 @@ from charts.charts_plotly import create_layout
 from routes import register_routes
 
 
-csv_reader = CSVReader("nutrition.csv")
-data_manager_reader = DataManager(reader=csv_reader)
+# csv_reader = CSVReader("nutrition.csv")
+# data_manager_reader = DataManager(reader=csv_reader)
 app = Flask(__name__)
 register_routes(app)
 Bootstrap(app)
@@ -31,11 +32,16 @@ dash_app.layout = create_layout()
         Input('time-frame-dropdown', 'value'),
     ]
 )
-def update_graph_live(_, start_date, end_date, time_frame):
+def update_graph_live(
+        _: Any,
+        start_date: Optional[str],
+        end_date: Optional[str],
+        time_frame: str
+    ) -> go.Figure:
     # Load the data
 
-    sqlreader = SQLite3Reader('data/bodyweight.db')
-    df = sqlreader.read_data("SELECT * FROM food_eaten ORDER BY timestamp")
+    sqlreader: SQLite3Reader = SQLite3Reader('data/bodyweight.db')
+    df: pd.DataFrame = sqlreader.read_data("SELECT * FROM food_eaten ORDER BY timestamp")
 
     # filtered_data_weight = filter_weight_data_by_date(start_date, end_date)
 
@@ -47,7 +53,7 @@ def update_graph_live(_, start_date, end_date, time_frame):
     df["timestamp"] = df["timestamp"] #- pd.DateOffset(hours=2)
 
     # Define function to categorize time of day
-    def time_of_day(t):
+    def time_of_day(t: datetime) -> str:
         if 2 <= t.hour < 12:
             return '2-12'
         elif 12 <= t.hour < 17:
@@ -122,7 +128,11 @@ def update_graph_live(_, start_date, end_date, time_frame):
     return fig
 
 
-def filter_data_by_date(df, start_date, end_date):
+def filter_data_by_date(
+        df: pd.DataFrame,
+        start_date: Optional[datetime],
+        end_date: Optional[datetime]
+    ) -> pd.DataFrame:
     if start_date:
         df = df[df['date'] >= start_date]
     if end_date:
@@ -140,7 +150,12 @@ def filter_data_by_date(df, start_date, end_date):
         Input('time-frame-dropdown', 'value'),
     ]
 )
-def update_weight_chart(_, start_date, end_date, time_frame):
+def update_weight_chart(
+        _: Any,
+        start_date: Optional[str],
+        end_date: Optional[str],
+        time_frame: str
+    ) -> go.Figure:
     # Read the weight data
     sql3reader = SQLite3Reader("data/bodyweight.db")
     weight_data = sql3reader.read_data("SELECT * FROM bodyweight ORDER BY date")
