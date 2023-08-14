@@ -1,74 +1,65 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "base.html" %}
+{% block title %}Weightloss Dashboard{% endblock %}
+{% block extra_scripts %}
     <script>
         window.onload = function() {
             var iframe = document.getElementById('dashboard-iframe');
             iframe.src = iframe.src;
         };
     </script>
-    <title>Food Nutrition Data</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <nav>
-        <a href="{{ url_for('index') }}" class="{{ 'active-nav-link' if request.endpoint == 'index' else '' }}">Index</a> |
-        <a href="{{ url_for('manage_food') }}" class="{{ 'active-nav-link' if request.endpoint == 'manage_food' else '' }}">Manage Food</a> |
-        <a href="{{ url_for('manage_bodyweight') }}" class="{{ 'active-nav-link' if request.endpoint == 'manage_bodyweight' else '' }}">Manage Bodyweight</a>
-    </nav>
-    <h1>Weight Loss Dashboard</h1>
-    <!-- Display flashed messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-    <button id="toggle-food-entry" onclick="toggleFoodEntry()">Enter Data</button> <!-- Toggle button -->
-    <div id="food-entry-section">
-    <!-- Wrap the forms in a container div -->
-        <div class="form-container">
-            <form method="POST">
-                <label for="timestamp">Timestamp:</label><br>
-                <input type="datetime-local" id="timestamp" name="timestamp" value="" required><br>
-                <label for="food_item">Food Item:</label><br>
-                <input type="text" id="food_item" name="food_item" required><br>
-                <label for="weight">Weight (in grams):</label><br>
-                <input type="number" id="weight" name="weight" required><br>
-                <input type="submit" value="Submit">
-            </form>
-            <script>
-                var localTimestamp = new Date();
-                localTimestamp.setMinutes(localTimestamp.getMinutes() - localTimestamp.getTimezoneOffset());
-                document.getElementById('timestamp').value = localTimestamp.toISOString().slice(0, 16)
-            </script>
-            <form method="POST">
-                <label for="date">date:</label><br>
-                <input type="date" id="date" name="date" value="localDate" required><br>
-                <label for="bodyweight">bodyweight (in kg):</label><br>
-                <input type="number" id="bodyweight" name="bodyweight" required step="0.1"><br>
-                <input type="submit" value="Submit">
-            </form>
-            <script>
-                var localDate = new Date();
-                localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
-                document.getElementById('date').value = localDate.toISOString().slice(0, 10);            </script>
-            <script>
-                function toggleFoodEntry() {
-                    var section = document.getElementById('food-entry-section');
-                    if (section.style.display === 'none') {
-                        section.style.display = 'block';
-                    } else {
-                        section.style.display = 'none';
-                    }
+{% endblock %}
+{% block content %}
+
+<h1>Weight Loss Dashboard</h1>
+<!-- Display flashed messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+<button id="toggle-food-entry" onclick="toggleFoodEntry()">Enter Data</button> <!-- Toggle button -->
+<div id="food-entry-section">
+<!-- Wrap the forms in a container div -->
+    <div class="form-container">
+        <form method="POST">
+            <label for="timestamp">Timestamp:</label><br>
+            <input type="datetime-local" id="timestamp" name="timestamp" value="" required><br>
+            <label for="food_item">Food Item:</label><br>
+            <input type="text" id="food_item" name="food_item" required><br>
+            <label for="weight">Weight (in grams):</label><br>
+            <input type="number" id="weight" name="weight" required><br>
+            <input type="submit" value="Submit">
+        </form>
+        <script>
+            var localTimestamp = new Date();
+            localTimestamp.setMinutes(localTimestamp.getMinutes() - localTimestamp.getTimezoneOffset());
+            document.getElementById('timestamp').value = localTimestamp.toISOString().slice(0, 16)
+        </script>
+        <form method="POST">
+            <label for="date">date:</label><br>
+            <input type="date" id="date" name="date" value="localDate" required><br>
+            <label for="bodyweight">bodyweight (in kg):</label><br>
+            <input type="number" id="bodyweight" name="bodyweight" required step="0.1"><br>
+            <input type="submit" value="Submit">
+        </form>
+        <script>
+            var localDate = new Date();
+            localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+            document.getElementById('date').value = localDate.toISOString().slice(0, 10);            </script>
+        <script>
+            function toggleFoodEntry() {
+                var section = document.getElementById('food-entry-section');
+                if (section.style.display === 'none') {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
                 }
-            </script>
-        </div>
+            }
+        </script>
     </div>
-    <iframe src="/dashboard" width="100%" height="600"></iframe>
-</body>
-</html>
+</div>
+<iframe src="/dashboard" width="100%" height="600"></iframe>
+
+{% endblock %}
