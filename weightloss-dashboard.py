@@ -137,9 +137,10 @@ def filter_data_by_date(df, start_date, end_date):
         Input('interval-component', 'n_intervals'),
         Input('date-picker-range', 'start_date'),
         Input('date-picker-range', 'end_date'),
+        Input('time-frame-dropdown', 'value'),
     ]
 )
-def update_weight_chart(_, start_date, end_date):
+def update_weight_chart(_, start_date, end_date, time_frame):
     # Read the weight data
     sql3reader = SQLite3Reader("data/bodyweight.db")
     weight_data = sql3reader.read_data("SELECT * FROM bodyweight ORDER BY date")
@@ -147,14 +148,28 @@ def update_weight_chart(_, start_date, end_date):
     start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
     end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
     filtered_weight_data = filter_data_by_date(weight_data, start_date, end_date)
-    fig = px.line(filtered_weight_data, x='date', y='bodyweight') 
+
+    if time_frame == 'weekly':
+        # Calculate the start of the week for each date
+        filtered_weight_data['week_start'] = filtered_weight_data['date'].dt.to_period('W').dt.start_time
+        # Group by the start of the week, then calculate the mean for the 'bodyweight' column
+        grouped_data = filtered_weight_data.groupby('week_start')['bodyweight'].mean().reset_index()
+        grouped_data['date'] = grouped_data['week_start']
+    elif time_frame == 'monthly':
+        # Group by year and month, then calculate the mean for the 'bodyweight' column
+        grouped_data = filtered_weight_data.groupby([filtered_weight_data['date'].dt.to_period('M')])['bodyweight'].mean().reset_index()
+        grouped_data['date'] = grouped_data['date'].dt.to_timestamp()
+    else:
+        grouped_data = filtered_weight_data
+
+    print(grouped_data)
+    fig = px.line(grouped_data, x='date', y='bodyweight')
     fig.update_layout(margin=dict(l=20, r=20, t=20, b=0))
     fig.update_xaxes(title_text="")
     fig.update_yaxes(title_text="")
-    #fig.update_yaxes(rangemode="tozero")  # Set the y-axis to start at 0
     fig.update_layout(
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)'
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
     )
     fig.update_xaxes(showline=False, zeroline=False)
     fig.update_yaxes(showline=False, zeroline=False)
