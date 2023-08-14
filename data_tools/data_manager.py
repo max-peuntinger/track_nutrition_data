@@ -1,8 +1,8 @@
 import pandas as pd
 import sqlite3
+import pandas as pd
 
-
-class SQLite3Reader:
+class _SQLite3Reader:
     def __init__(self, db_path):
         self.db_path = db_path
 
@@ -14,11 +14,38 @@ class SQLite3Reader:
 
     def read_single_data(self, id, table):
         conn = sqlite3.connect(self.db_path)
-        query = f"SELECT * FROM {table} WHERE id = {id}"
+        query = f"SELECT * FROM {table} WHERE id = {id} LIMIT 1"
         df = pd.read_sql(query, conn)
         conn.close()
         return df
 
+class DataReaderInterface:
+    def read_food_eaten_data(self) -> pd.DataFrame:
+        pass
+
+    def read_bodyweight_data(self) -> pd.DataFrame:
+        pass
+
+    def read_single_bodyweight_entry(self, id: int) -> pd.DataFrame:
+        pass
+
+class DataReader(DataReaderInterface):
+    def __init__(self, db_name: str):
+        self.sql_reader = _SQLite3Reader(db_name)
+
+    def read_food_eaten_data(self) -> pd.DataFrame:
+        query = "SELECT * FROM food_eaten ORDER BY timestamp DESC"
+        return self.sql_reader.read_data(query)
+
+    def read_bodyweight_data(self) -> pd.DataFrame:
+        query = "SELECT * FROM bodyweight ORDER BY date DESC"
+        return self.sql_reader.read_data(query)
+    
+    def read_single_bodyweight_entry(self, id: int) -> pd.DataFrame:
+            return self.sql_reader.read_single_data(id=id, table="bodyweight")
+    
+    def read_single_food_entry(self, id: int) -> pd.DataFrame:
+            return self.sql_reader.read_single_data(id=id, table="food_eaten")
 
 class SQLite3Writer:
     def __init__(self, db_path):
