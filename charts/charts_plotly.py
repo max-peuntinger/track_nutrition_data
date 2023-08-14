@@ -13,6 +13,11 @@ def create_layout():
     layout = html.Div([
         dbc.Container([
             html.Div([
+                 dcc.DatePickerRange(
+                    id='date-picker-range',
+                    start_date_placeholder_text="Start Date",
+                    end_date_placeholder_text="End Date"
+                )], style={'display': 'block', 'text-align': 'left'}),
                 html.Div([
                     html.H4('Calories per Day'),
                     dcc.Graph(id='calories-bar-chart'),
@@ -27,6 +32,7 @@ def create_layout():
                 interval=1*1000,  # in milliseconds
                 n_intervals=0
             )
-        ])
-    ])
+        ]
+    )
+
     return layout
