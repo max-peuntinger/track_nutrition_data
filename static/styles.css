@@ -15,4 +15,31 @@ nav {
     font-weight: bold;
     text-decoration: underline;
   }
-  
+
+  form {
+      margin: auto;
+      width: fit-content;
+  }
+  input {
+      margin: 5px;
+  }
+  /* Styling for flash messages */
+  .flash {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      color: #555;
+  }
+  .flash.success {
+      background: #d4edda;
+      color: #155724;
+  }
+  .flash.info {
+      background: #cce5ff;
+      color: #004085;
+  }
+  /* Add this new style */
+  .form-container {
+      display: flex;
+      justify-content: space-between; /* Optional: Adds space between the forms */
+  }

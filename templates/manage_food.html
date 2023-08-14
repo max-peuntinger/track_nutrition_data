@@ -1,56 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Manage Food Entries</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <nav>
-        <a href="{{ url_for('index') }}" class="{{ 'active-nav-link' if request.endpoint == 'index' else '' }}">Index</a> |
-        <a href="{{ url_for('manage_food') }}" class="{{ 'active-nav-link' if request.endpoint == 'manage_food' else '' }}">Manage Food</a> |
-        <a href="{{ url_for('manage_bodyweight') }}" class="{{ 'active-nav-link' if request.endpoint == 'manage_bodyweight' else '' }}">Manage Bodyweight</a>
-    </nav>
-    <div class="container">
-        <h1>Manage Food Entries</h1>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Food Name</th>
-                    <th>Calories</th>
-                    <th>Weight (in g)</th>
-                    <th>Modify</th>
-                    <th>Delete</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entry in food_data.itertuples() %}
-                <tr>
-                    <td>{{ entry.timestamp }}</td>
-                    <td>{{ entry.name }}</td>
-                    <td>{{ entry.calories }}</td>
-                    <td>{{ entry.serving_size_g }}</td>
-                    <td>
-                        <a href="{{ url_for('modify_food', id=entry.id) }}" class="btn btn-warning">Modify</a> <!-- Updated line -->
-                    </td>
-                    <td>
-                        <form action="{{ url_for('delete_food_eaten', entry_id=entry.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this entry?');">
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <script>
-        function confirmDelete(deleteUrl) {
-            if (confirm('Are you sure you want to delete this entry?')) {
-                window.location.href = deleteUrl;
-            }
+{% extends "base.html" %}
+{% block title %}Manage Food Entries{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>Manage Food Entries</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Food Name</th>
+                <th>Calories</th>
+                <th>Weight (in g)</th>
+                <th>Modify</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in food_data.itertuples() %}
+            <tr>
+                <td>{{ entry.timestamp }}</td>
+                <td>{{ entry.name }}</td>
+                <td>{{ entry.calories }}</td>
+                <td>{{ entry.serving_size_g }}</td>
+                <td>
+                    <a href="{{ url_for('modify_food', id=entry.id) }}" class="btn btn-warning">Modify</a> <!-- Updated line -->
+                </td>
+                <td>
+                    <form action="{{ url_for('delete_food_eaten', entry_id=entry.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this entry?');">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    function confirmDelete(deleteUrl) {
+        if (confirm('Are you sure you want to delete this entry?')) {
+            window.location.href = deleteUrl;
         }
-    </script>
-</body>
-</html>
+    }
+</script>
+{% endblock %}

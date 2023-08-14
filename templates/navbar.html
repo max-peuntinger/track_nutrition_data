@@ -1,0 +1,5 @@
+<nav>
+    <a href="{{ url_for('index') }}" class="{{ 'active-nav-link' if request.endpoint == 'index' else '' }}">Index</a> |
+    <a href="{{ url_for('manage_food') }}" class="{{ 'active-nav-link' if request.endpoint == 'manage_food' else '' }}">Manage Food</a> |
+    <a href="{{ url_for('manage_bodyweight') }}" class="{{ 'active-nav-link' if request.endpoint == 'manage_bodyweight' else '' }}">Manage Bodyweight</a>
+</nav>
