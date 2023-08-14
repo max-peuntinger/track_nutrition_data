@@ -1,3 +1,4 @@
+from datetime import datetime
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash
@@ -23,12 +24,20 @@ dash_app.layout = create_layout()
 
 @dash_app.callback(
     Output('calories-bar-chart', 'figure'),
-    [Input('interval-component', 'n_intervals')]
+    [
+        Input('interval-component', 'n_intervals'),
+        Input('date-picker-range', 'start_date'),
+        Input('date-picker-range', 'end_date'),
+    ]
 )
-def update_graph_live(_):
+def update_graph_live(_, start_date, end_date):
     # Load the data
+
     sqlreader = SQLite3Reader('data/bodyweight.db')
     df = sqlreader.read_data("SELECT * FROM food_eaten ORDER BY timestamp")
+
+    # filtered_data_weight = filter_weight_data_by_date(start_date, end_date)
+
 
     # Convert timestamp to datetime format in UTC
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
@@ -50,11 +59,15 @@ def update_graph_live(_):
     # Apply function to timestamp
     df["time_of_day"] = df["timestamp"].apply(time_of_day)
 
-    # Extract the date from the timestamp
+    # Extract the date from the timestamp and filter
     df["date"] = df["timestamp"].dt.date
+    df["date"] = pd.to_datetime(df["date"])
+    start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
+    end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
+    filtered_data_df = filter_data_by_date(df, start_date, end_date)
 
     # Group by date and time of day and sum calories
-    grouped = df.groupby(["date", "time_of_day"])["calories"].sum().unstack().fillna(0)
+    grouped = filtered_data_df.groupby(["date", "time_of_day"])["calories"].sum().unstack().fillna(0)
 
     # Check if the columns exist, if not add them with default value of 0
     for col in ['2-12', '12-17', '17-22', '22-2']:
@@ -95,16 +108,32 @@ def update_graph_live(_):
     return fig
 
 
+def filter_data_by_date(df, start_date, end_date):
+    if start_date:
+        df = df[df['date'] >= start_date]
+    if end_date:
+        df = df[df['date'] <= end_date]
+    return df
+
+
 # Define the callback
 @dash_app.callback(
     Output('weight-line-chart', 'figure'),
-    Input('interval-component', 'n_intervals')
+    [
+        Input('interval-component', 'n_intervals'),
+        Input('date-picker-range', 'start_date'),
+        Input('date-picker-range', 'end_date'),
+    ]
 )
-def update_weight_chart(_):
+def update_weight_chart(_, start_date, end_date):
     # Read the weight data
     sql3reader = SQLite3Reader("data/bodyweight.db")
     weight_data = sql3reader.read_data("SELECT * FROM bodyweight ORDER BY date")
-    fig = px.line(weight_data, x='date', y='bodyweight') 
+    weight_data["date"] = pd.to_datetime(weight_data["date"])
+    start_date = datetime.strptime(start_date, '%Y-%m-%d') if start_date else None
+    end_date = datetime.strptime(end_date, '%Y-%m-%d') if end_date else None
+    filtered_weight_data = filter_data_by_date(weight_data, start_date, end_date)
+    fig = px.line(filtered_weight_data, x='date', y='bodyweight') 
     fig.update_layout(margin=dict(l=20, r=20, t=20, b=0))
     fig.update_xaxes(title_text="")
     fig.update_yaxes(title_text="")
