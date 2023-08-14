@@ -44,7 +44,7 @@ def update_graph_live(_, start_date, end_date, time_frame):
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
 
     # Subtract 2 hours from each timestamp to make 00:00 to 02:00 as previous day
-    df["timestamp"] = df["timestamp"] - pd.DateOffset(hours=2)
+    df["timestamp"] = df["timestamp"] #- pd.DateOffset(hours=2)
 
     # Define function to categorize time of day
     def time_of_day(t):
@@ -162,7 +162,6 @@ def update_weight_chart(_, start_date, end_date, time_frame):
     else:
         grouped_data = filtered_weight_data
 
-    print(grouped_data)
     fig = px.line(grouped_data, x='date', y='bodyweight')
     fig.update_layout(margin=dict(l=20, r=20, t=20, b=0))
     fig.update_xaxes(title_text="")
