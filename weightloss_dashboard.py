@@ -8,7 +8,7 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 import plotly.express as px
 from data_tools.data_processing import filter_data_by_date, time_of_day
-from data_tools.data_manager import SQLite3Reader
+from data_tools.data_manager import DataReader
 from charts.charts_plotly import create_layout
 from routes import register_routes
 
@@ -32,10 +32,8 @@ dash_app.layout = create_layout()
 def update_graph_live(
     _: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str
 ) -> go.Figure:
-    sqlreader: SQLite3Reader = SQLite3Reader("data/bodyweight.db")
-    df: pd.DataFrame = sqlreader.read_data(
-        "SELECT * FROM food_eaten ORDER BY timestamp"
-    )
+    datareader = DataReader("data/bodyweight.db")
+    df: pd.DataFrame = datareader.read_food_eaten_data()
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
     df["timestamp"] = df["timestamp"]
 
@@ -115,8 +113,8 @@ def update_graph_live(
 def update_weight_chart(
     _: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str
 ) -> go.Figure:
-    sql3reader = SQLite3Reader("data/bodyweight.db")
-    weight_data = sql3reader.read_data("SELECT * FROM bodyweight ORDER BY date")
+    datareader = DataReader("data/bodyweight.db")
+    weight_data = datareader.read_bodyweight_data()
     weight_data["date"] = pd.to_datetime(weight_data["date"])
     start_date = datetime.strptime(start_date, "%Y-%m-%d") if start_date else None
     end_date = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None

@@ -1,10 +1,10 @@
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 import plotly.express as px
-from data_tools.data_manager import SQLite3Reader
+from data_tools.data_manager import DataReader
 
-sql3reader = SQLite3Reader("data/bodyweight.db")
-bodyweight_data = sql3reader.read_data("SELECT * FROM bodyweight")
+data_reader = DataReader("data/bodyweight.db")
+bodyweight_data= data_reader.read_bodyweight_data()
 fig = px.line(bodyweight_data, x="date", y="bodyweight")
 fig.update_layout(yaxis=dict(range=[0, None]))
 
