@@ -2,7 +2,7 @@ from datetime import datetime
 import pytz
 from flask import request, render_template, redirect, url_for, session, flash
 from api.foodninja_api import get_food_info_from_api
-from data.data_manager import SQLite3Writer, SQLite3Reader
+from data_tools.data_manager import SQLite3Writer, SQLite3Reader
 
 def register_routes(app):
 
@@ -21,14 +21,14 @@ def register_routes(app):
                     data = process_nutrition_data(food_item, weight, nutrition_data)
                     data["timestamp"] = timestamp
                     session['data_to_save'] = data
-                    sqlwriter = SQLite3Writer('bodyweight.db')
+                    sqlwriter = SQLite3Writer('data/bodyweight.db')
                     sqlwriter.create_data("food_eaten", session["data_to_save"])
                     flash('Data saved successfully!', 'success')
             elif 'bodyweight' in request.form:
                 weight_data = {}
                 weight_data['date'] = request.form.get('date')
                 weight_data['bodyweight'] = request.form.get('bodyweight')
-                sql3writer = SQLite3Writer('bodyweight.db')
+                sql3writer = SQLite3Writer('data/bodyweight.db')
                 sql3writer.create_data('bodyweight', weight_data)
                 flash('Data saved successfully!', 'success')
             else:
@@ -39,7 +39,7 @@ def register_routes(app):
 
     @app.route('/manage_food', methods=['GET'])
     def manage_food():
-        sql_reader =SQLite3Reader('bodyweight.db')
+        sql_reader =SQLite3Reader('data/bodyweight.db')
         food_data = sql_reader.read_data("SELECT * FROM food_eaten ORDER BY timestamp DESC")
 
         # Render the template and pass the data
@@ -48,7 +48,7 @@ def register_routes(app):
     @app.route('/delete_food_eaten/<int:entry_id>', methods=['POST'])
     def delete_food_eaten(entry_id):
         # Delete the entry from the database
-        sql_writer = SQLite3Writer('bodyweight.db')
+        sql_writer = SQLite3Writer('data/bodyweight.db')
         sql_writer.delete_data("food_eaten", entry_id)
 
         # flash a success message
@@ -60,7 +60,7 @@ def register_routes(app):
     @app.route('/manage', methods=['GET'])
     def manage_bodyweight():
         # Read all the bodyweight entries from the database
-        sql_reader = SQLite3Reader("bodyweight.db")
+        sql_reader = SQLite3Reader("data/bodyweight.db")
         bodyweight_data = sql_reader.read_data("SELECT * FROM bodyweight ORDER BY date DESC")
 
         # Render the template and pass the data
@@ -69,7 +69,7 @@ def register_routes(app):
     @app.route('/delete_bodyweight/<int:entry_id>', methods=['POST'])
     def delete_bodyweight(entry_id):
         # Delete the entry from the database
-        sql_writer = SQLite3Writer('bodyweight.db')
+        sql_writer = SQLite3Writer('data/bodyweight.db')
         sql_writer.delete_data('bodyweight', entry_id)
 
         # Flash a success message
@@ -80,14 +80,14 @@ def register_routes(app):
 
     @app.route('/modify_bodyweight/<int:id>', methods=['GET', 'POST'])
     def modify_bodyweight(id):
-        sql_reader = SQLite3Reader('bodyweight.db')
+        sql_reader = SQLite3Reader('data/bodyweight.db')
         bodyweight_entry = sql_reader.read_single_data(id=id, table='bodyweight')
 
         if request.method == 'POST':
             weight_data = {}
             weight_data['date'] = request.form.get('date')
             weight_data['bodyweight'] = request.form.get('bodyweight')
-            sql_writer = SQLite3Writer('bodyweight.db')
+            sql_writer = SQLite3Writer('data/bodyweight.db')
             sql_writer.update_data('bodyweight', weight_data, id)
     # Make sure this method is implemented
             flash('Bodyweight entry updated successfully!', 'success')
@@ -97,7 +97,7 @@ def register_routes(app):
 
     @app.route('/modify_food/<int:id>', methods=['GET', 'POST'])
     def modify_food(id):
-        sql_reader = SQLite3Reader('bodyweight.db')
+        sql_reader = SQLite3Reader('data/bodyweight.db')
         food_entry = sql_reader.read_single_data(id=id, table='food_eaten')
         old_name = food_entry.iloc[0]['name']
         old_serving_size_g = food_entry.iloc[0]['serving_size_g']
@@ -114,7 +114,7 @@ def register_routes(app):
                 nutrition_data = get_food_info_from_api(food_data['name'], weight)
                 food_data.update(process_nutrition_data(food_data['name'], weight, nutrition_data, timestamp = food_data['timestamp']))
 
-            sql_writer = SQLite3Writer('bodyweight.db')
+            sql_writer = SQLite3Writer('data/bodyweight.db')
             sql_writer.update_data('food_eaten', food_data, id)
             flash('Food entry updated successfully!', 'success')
             return redirect(url_for('manage_food'))  # Redirect back to the manage food page

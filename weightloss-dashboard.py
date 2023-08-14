@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output
 from flask import Flask
 from flask_bootstrap import Bootstrap
 import plotly.express as px
-from data.data_manager import DataManager, CSVReader, SQLite3Reader
+from data_tools.data_manager import DataManager, CSVReader, SQLite3Reader
 from charts.charts_plotly import create_layout
 from routes import register_routes
 
@@ -27,7 +27,7 @@ dash_app.layout = create_layout()
 )
 def update_graph_live(_):
     # Load the data
-    sqlreader = SQLite3Reader('bodyweight.db')
+    sqlreader = SQLite3Reader('data/bodyweight.db')
     df = sqlreader.read_data("SELECT * FROM food_eaten ORDER BY timestamp")
 
     # Convert timestamp to datetime format in UTC
@@ -102,7 +102,7 @@ def update_graph_live(_):
 )
 def update_weight_chart(_):
     # Read the weight data
-    sql3reader = SQLite3Reader("bodyweight.db")
+    sql3reader = SQLite3Reader("data/bodyweight.db")
     weight_data = sql3reader.read_data("SELECT * FROM bodyweight ORDER BY date")
     fig = px.line(weight_data, x='date', y='bodyweight') 
     fig.update_layout(margin=dict(l=20, r=20, t=20, b=0))
