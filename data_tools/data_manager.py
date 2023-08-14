@@ -1,45 +1,5 @@
-import csv
-import os
 import pandas as pd
 import sqlite3
-
-
-class DataManager:
-    def __init__(self, reader=None, writer=None):
-        self.reader = reader
-        self.writer = writer
-
-    def read_data(self):
-        if self.reader:
-            return self.reader.read_data()
-        return None
-
-    def write_data(self, data):
-        if self.writer:
-            self.writer.write_data(data)
-        return None
-
-
-class CSVReader:
-    def __init__(self, file_path):
-        self.file_path = file_path
-
-    def read_data(self):
-        return pd.read_csv(self.file_path)
-
-
-class CSVWriter:
-    def __init__(self, file_path, field_order):
-        self.file_path = file_path
-        self.field_order = field_order
-
-    def write_data(self, data):
-        write_header = not os.path.exists(self.file_path)
-        with open(self.file_path, mode="a", newline="") as file:
-            writer = csv.DictWriter(file, fieldnames=self.field_order)
-            if write_header:
-                writer.writeheader()
-            writer.writerow(data)
 
 
 class SQLite3Reader:
