@@ -28,9 +28,10 @@ dash_app.layout = create_layout()
         Input('interval-component', 'n_intervals'),
         Input('date-picker-range', 'start_date'),
         Input('date-picker-range', 'end_date'),
+        Input('time-frame-dropdown', 'value'),
     ]
 )
-def update_graph_live(_, start_date, end_date):
+def update_graph_live(_, start_date, end_date, time_frame):
     # Load the data
 
     sqlreader = SQLite3Reader('data/bodyweight.db')
@@ -68,6 +69,19 @@ def update_graph_live(_, start_date, end_date):
 
     # Group by date and time of day and sum calories
     grouped = filtered_data_df.groupby(["date", "time_of_day"])["calories"].sum().unstack().fillna(0)
+
+    # Convert index to datetime
+    grouped.index = pd.to_datetime(grouped.index)
+
+    # Resample based on the selected time frame
+    if time_frame == 'weekly':
+        weekly_totals = grouped.resample('W-MON', closed='left', label='left').sum()
+        days_with_data_weekly = grouped.resample('W-MON', closed='left', label='left').apply(lambda x: x.index.nunique())
+        grouped = weekly_totals.divide(days_with_data_weekly, axis=0)
+    elif time_frame == 'monthly':
+        monthly_totals = grouped.resample('M').sum()
+        days_with_data_monthly = grouped.resample('M').apply(lambda x: x.index.nunique())
+        grouped = monthly_totals.divide(days_with_data_monthly, axis=0)
 
     # Check if the columns exist, if not add them with default value of 0
     for col in ['2-12', '12-17', '17-22', '22-2']:
