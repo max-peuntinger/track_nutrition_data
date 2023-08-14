@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import sqlite3
 
+
 class DataManager:
     def __init__(self, reader=None, writer=None):
         self.reader = reader
@@ -12,18 +13,20 @@ class DataManager:
         if self.reader:
             return self.reader.read_data()
         return None
-    
+
     def write_data(self, data):
         if self.writer:
             self.writer.write_data(data)
         return None
-    
+
+
 class CSVReader:
     def __init__(self, file_path):
         self.file_path = file_path
 
     def read_data(self):
         return pd.read_csv(self.file_path)
+
 
 class CSVWriter:
     def __init__(self, file_path, field_order):
@@ -35,7 +38,7 @@ class CSVWriter:
         write_header = not os.path.exists(self.file_path)
 
         # Open the file in append mode
-        with open(self.file_path, mode='a', newline='') as file:
+        with open(self.file_path, mode="a", newline="") as file:
             writer = csv.DictWriter(file, fieldnames=self.field_order)
 
             # Write the header if the file is new
@@ -44,6 +47,7 @@ class CSVWriter:
 
             # Write the data as a row
             writer.writerow(data)
+
 
 class SQLite3Reader:
     def __init__(self, db_path):
@@ -54,14 +58,14 @@ class SQLite3Reader:
         df = pd.read_sql_query(query, conn)
         conn.close()
         return df
-    
+
     def read_single_data(self, id, table):
         conn = sqlite3.connect(self.db_path)
         query = f"SELECT * FROM {table} WHERE id = {id}"
         df = pd.read_sql(query, conn)
         conn.close()
         return df
-    
+
 
 class SQLite3Writer:
     def __init__(self, db_path):
@@ -70,8 +74,8 @@ class SQLite3Writer:
     def create_data(self, table_name, data):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        columns = ', '.join(data.keys())
-        placeholders = ', '.join(['?'] * len(data))
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join(["?"] * len(data))
         query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
         cursor.execute(query, tuple(data.values()))
         conn.commit()
@@ -92,7 +96,6 @@ class SQLite3Writer:
         cursor.execute(query, values)
         conn.commit()
         conn.close()
-
 
     def delete_data(self, table_name, row_id):
         conn = sqlite3.connect(self.db_path)
