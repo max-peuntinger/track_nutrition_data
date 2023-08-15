@@ -32,6 +32,24 @@ dash_app.layout = create_layout()
 def update_graph_live(
     _: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str
 ) -> go.Figure:
+    """
+    Updates the calories bar chart on the dashboard in real-time.
+
+    This callback function is triggered by changes in the specified inputs, including the interval component, date picker range, and time frame dropdown.
+    It reads the food eaten data from the database, filters and groups the data based on the selected time frame, and constructs a bar chart to represent the total calories consumed during different time intervals of the day.
+
+    Parameters:
+        _: Any (Unused parameter, typically representing the interval component)
+        start_date: Optional[str] (The start date for filtering the data, in the format "YYYY-MM-DD")
+        end_date: Optional[str] (The end date for filtering the data, in the format "YYYY-MM-DD")
+        time_frame: str (The selected time frame for grouping the data, being, "daily, "weekly", "monthly")
+
+    Returns:
+        go.Figure: A Plotly Figure object representing the bar chart of total calories consumed.
+
+    Note:
+        The function handles different time frames ("weekly", "monthly") and ensures that all required columns are present in the grouped data. It also adds text annotations for total calories on the chart.
+    """
     datareader = DataReader("data/bodyweight.db")
     df: pd.DataFrame = datareader.read_food_eaten_data()
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
@@ -113,6 +131,24 @@ def update_graph_live(
 def update_weight_chart(
     _: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str
 ) -> go.Figure:
+    """
+    Updates the weight line chart on the dashboard in real-time.
+
+    This callback function is triggered by changes in the specified inputs, including the interval component, date picker range, and time frame dropdown.
+    It reads the bodyweight data from the database, filters and groups the data based on the selected time frame, and constructs a line chart to represent the average bodyweight over time.
+
+    Parameters:
+        _: Any (Unused parameter, typically representing the interval component)
+        start_date: Optional[str] (The start date for filtering the data, in the format "YYYY-MM-DD")
+        end_date: Optional[str] (The end date for filtering the data, in the format "YYYY-MM-DD")
+        time_frame: str (The selected time frame for grouping the data, being, "daily", "weekly", "monthly")
+
+    Returns:
+        go.Figure: A Plotly Figure object representing the line chart of average bodyweight.
+
+    Note:
+        The function handles different time frames ("daily", "weekly", "monthly") and groups the data accordingly. The line chart provides a visual representation of bodyweight trends over the selected period.
+    """
     datareader = DataReader("data/bodyweight.db")
     weight_data = datareader.read_bodyweight_data()
     weight_data["date"] = pd.to_datetime(weight_data["date"])
