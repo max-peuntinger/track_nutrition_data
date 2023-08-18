@@ -2,6 +2,17 @@ import sqlite3
 
 
 def create_database(db_path, table_name, columns):
+    """
+    Creates a new table in the specified SQLite3 database.
+
+    Args:
+        db_path (str): The path to the SQLite3 database file.
+        table_name (str): The name of the table to create.
+        columns (dict): A dictionary containing the column names and their corresponding types.
+
+    Returns:
+        None: The function prints a success message but does not return a value.
+    """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
