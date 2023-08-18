@@ -4,7 +4,7 @@ import plotly.express as px
 from data_tools.data_manager import DataReader
 
 data_reader = DataReader("data/bodyweight.db")
-bodyweight_data= data_reader.read_bodyweight_data()
+bodyweight_data = data_reader.read_bodyweight_data()
 fig = px.line(bodyweight_data, x="date", y="bodyweight")
 fig.update_layout(yaxis=dict(range=[0, None]))
 

@@ -1,9 +1,9 @@
 import sqlite3
+from typing import Dict
 
 
-def create_database(db_path, table_name, columns):
-    """
-    Creates a new table in the specified SQLite3 database.
+def create_database(db_path: str, table_name: str, columns: Dict[str, str]) -> None:
+    """Creates a new table in the specified SQLite3 database.
 
     Args:
         db_path (str): The path to the SQLite3 database file.

@@ -1,19 +1,29 @@
-from flask import request, render_template, redirect, url_for, session, flash
+from flask import (
+    flash,
+    Flask,
+    redirect,
+    render_template,
+    Response,
+    request,
+    url_for,
+    session,
+)
 from api.foodninja_api import get_food_info_from_api
 from data_tools.data_manager import SQLite3Writer, DataReader
 from data_tools.data_processing import process_nutrition_data
+from typing import Dict, Optional
 
 
-def register_routes(app):
+def register_routes(app: Flask) -> None:
     """
     Registers the routes for the Flask application.
 
     Args:
         app (Flask): The Flask application to register the routes for.
     """
-    
+
     @app.route("/", methods=["GET", "POST"])
-    def index():
+    def index() -> Response:
         """Handles the main index page, allowing users to input food or bodyweight data and also displays the dashboard used to investigate eating and weight patterns.
 
         Returns:
@@ -50,7 +60,7 @@ def register_routes(app):
         return render_template("index.html", data=session.get("data_to_save"))
 
     @app.route("/manage_food", methods=["GET"])
-    def manage_food():
+    def manage_food() -> Response:
         """Displays the management page for food data where entries made on the index page can be edited or deleted.
 
         Returns:
@@ -61,7 +71,7 @@ def register_routes(app):
         return render_template("manage_food.html", food_data=food_data)
 
     @app.route("/delete_food_eaten/<int:entry_id>", methods=["POST"])
-    def delete_food_eaten(entry_id):
+    def delete_food_eaten(entry_id: int) -> Response:
         """Deletes a specific food entry.
 
         Args:
@@ -76,7 +86,7 @@ def register_routes(app):
         return redirect(url_for("manage_food"))
 
     @app.route("/modify_food/<int:id>", methods=["GET", "POST"])
-    def modify_food(id):
+    def modify_food(id: int) -> Response:
         """Allows the user to modify a specific food entry. If the type of food or the weight is changed, a new API call is performed. If the date is changed, the value is just edited.
 
         Args:
@@ -120,20 +130,20 @@ def register_routes(app):
         return render_template("modify_food.html", entry=food_entry_dict)
 
     @app.route("/manage", methods=["GET"])
-    def manage_bodyweight():
+    def manage_bodyweight() -> Response:
         """Displays the management page for bodyweight data.
 
         Returns:
             Response: The rendered HTML template for managing bodyweight data.
         """
         data_reader = DataReader("data/bodyweight.db")
-        bodyweight_data= data_reader.read_bodyweight_data()
+        bodyweight_data = data_reader.read_bodyweight_data()
         return render_template(
             "manage_bodyweight.html", bodyweight_data=bodyweight_data
         )
 
     @app.route("/delete_bodyweight/<int:entry_id>", methods=["POST"])
-    def delete_bodyweight(entry_id):
+    def delete_bodyweight(entry_id: int) -> Response:
         """Deletes a specific bodyweight entry.
 
         Args:
@@ -148,7 +158,7 @@ def register_routes(app):
         return redirect(url_for("manage_bodyweight"))
 
     @app.route("/modify_bodyweight/<int:id>", methods=["GET", "POST"])
-    def modify_bodyweight(id):
+    def modify_bodyweight(id: int) -> Response:
         """Allows the user to modify a specific bodyweight entry.
 
         Args:
