@@ -1,10 +1,12 @@
 from datetime import datetime
 import pandas as pd
 import pytz
-from typing import Optional
+from typing import Dict, Optional
 
 
-def process_nutrition_data(weight, nutrition_data, timestamp=None):
+def process_nutrition_data(
+    weight: float, nutrition_data: Dict[str, any], timestamp: Optional[str] = None
+) -> Dict[str, any]:
     """Processes nutrition data by multiplying the values by the given weight and adding a timestamp.
 
     Args:
@@ -48,7 +50,7 @@ def time_of_day(t: datetime) -> str:
         return "17-22"
     else:
         return "22-2"  # now this includes 00:00 to 02:00 as it is part of the previous day for my day/night cycle
-        
+
 
 def filter_data_by_date(
     df: pd.DataFrame, start_date: Optional[datetime], end_date: Optional[datetime]

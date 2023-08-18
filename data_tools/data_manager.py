@@ -1,6 +1,7 @@
 import pandas as pd
 import sqlite3
-import pandas as pd
+from typing import Dict
+
 
 class _SQLite3Reader:
     """A private class to read data from an SQLite3 database.
@@ -8,10 +9,11 @@ class _SQLite3Reader:
     Args:
         db_path (str): The path to the SQLite3 database file.
     """
-    def __init__(self, db_path):
+
+    def __init__(self, db_path: str):
         self.db_path = db_path
 
-    def read_data(self, query):
+    def read_data(self, query: str):
         """Reads data from the database using a custom SQL query.
 
         Args:
@@ -25,7 +27,7 @@ class _SQLite3Reader:
         conn.close()
         return df
 
-    def read_single_data(self, id, table):
+    def read_single_data(self, id: int, table: str):
         """Reads a single row from the specified table using the given ID.
 
         Args:
@@ -41,8 +43,10 @@ class _SQLite3Reader:
         conn.close()
         return df
 
+
 class DataReaderInterface:
     """An interface for reading different types of data."""
+
     def read_food_eaten_data(self) -> pd.DataFrame:
         """Reads food eaten data.
 
@@ -70,12 +74,14 @@ class DataReaderInterface:
         """
         pass
 
+
 class DataReader(DataReaderInterface):
     """A class that implements the DataReaderInterface using an SQLite3 database. For docstrings of functions see interface.
 
     Args:
         db_name (str): The name of the SQLite3 database file.
     """
+
     def __init__(self, db_name: str):
         self.sql_reader = _SQLite3Reader(db_name)
 
@@ -86,12 +92,13 @@ class DataReader(DataReaderInterface):
     def read_bodyweight_data(self) -> pd.DataFrame:
         query = "SELECT * FROM bodyweight ORDER BY date DESC"
         return self.sql_reader.read_data(query)
-    
+
     def read_single_bodyweight_entry(self, id: int) -> pd.DataFrame:
-            return self.sql_reader.read_single_data(id=id, table="bodyweight")
-    
+        return self.sql_reader.read_single_data(id=id, table="bodyweight")
+
     def read_single_food_entry(self, id: int) -> pd.DataFrame:
-            return self.sql_reader.read_single_data(id=id, table="food_eaten")
+        return self.sql_reader.read_single_data(id=id, table="food_eaten")
+
 
 class SQLite3Writer:
     """A class to write data to an SQLite3 database.
@@ -99,10 +106,11 @@ class SQLite3Writer:
     Args:
         db_path (str): The path to the SQLite3 database file.
     """
-    def __init__(self, db_path):
+
+    def __init__(self, db_path: str):
         self.db_path = db_path
 
-    def create_data(self, table_name, data):
+    def create_data(self, table_name: str, data: Dict[str, any]) -> None:
         """Inserts a new row into the specified table.
 
         Args:
@@ -121,7 +129,7 @@ class SQLite3Writer:
         conn.commit()
         conn.close()
 
-    def update_data(self, table_name, data, row_id):
+    def update_data(self, table_name: str, data: Dict[str, any], row_id: int) -> None:
         """Updates a row in the specified table.
 
         Args:
@@ -142,7 +150,7 @@ class SQLite3Writer:
         conn.commit()
         conn.close()
 
-    def delete_data(self, table_name, row_id):
+    def delete_data(self, table_name: str, row_id: int) -> None:
         """Deletes a row from the specified table.
 
         Args:
