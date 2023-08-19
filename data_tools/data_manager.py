@@ -74,6 +74,14 @@ class DataReaderInterface:
         """
         pass
 
+    def read_daily_macros(self) -> pd.DataFrame:
+        """Reads the daily sum of grams for each macronutritient (fats, carbohydrates, proteins).
+        
+        Returns:
+        pd.DataFrame: The sum of daily macronutritients.
+        """
+        pass
+
 
 class DataReader(DataReaderInterface):
     """A class that implements the DataReaderInterface using an SQLite3 database. For docstrings of functions see interface.
@@ -98,6 +106,16 @@ class DataReader(DataReaderInterface):
 
     def read_single_food_entry(self, id: int) -> pd.DataFrame:
         return self.sql_reader.read_single_data(id=id, table="food_eaten")
+    
+    def read_daily_macros(self):
+        query = """SELECT
+            date(timestamp, '-2 hours') as date,
+            SUM(carbohydrates_total_g) as carbs,
+            SUM(fat_total_g) as fats,
+            SUM(protein_g) as proteins
+            FROM food_eaten
+            GROUP BY date(timestamp)"""
+        return self.sql_reader.read_data(query)
 
 
 class SQLite3Writer:
