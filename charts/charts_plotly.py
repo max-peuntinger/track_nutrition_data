@@ -23,10 +23,10 @@ def create_stacked_bar_chart():
 
 
 def preprocess_cycling_data():
-    df = pd.read_csv("data/biking.csv")
-    print(df.columns) 
-    df['duration_in_min'] = df['duration_in_s'].fillna(0) / 60
-    return df
+    data_reader = DataReader(db_name="data/bodyweight.db")
+    cycling_data = data_reader.read_cycling_data()
+    print(cycling_data)  # Print the data to check
+    return cycling_data
 
 
 def create_cycling_chart(start_date: Optional[str] = None, end_date: Optional[str] = None, time_frame: str = "daily"):
@@ -39,7 +39,7 @@ def create_cycling_chart(start_date: Optional[str] = None, end_date: Optional[st
     if end_date:
         df = df[df['timestamp'] <= end_date]
     
-    fig = px.bar(df, x="timestamp", y="duration_in_min")
+    fig = px.bar(df, x="timestamp", y="duration")
     fig.update_layout(
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
