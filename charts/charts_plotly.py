@@ -2,13 +2,14 @@ from dash import dcc, html
 import dash_bootstrap_components as dbc
 import plotly.express as px
 from data_tools.data_manager import DataReader
-import sqlite3
 import pandas as pd
+
 
 data_reader = DataReader("data/bodyweight.db")
 bodyweight_data = data_reader.read_bodyweight_data()
 fig = px.line(bodyweight_data, x="date", y="bodyweight")
 fig.update_layout(yaxis=dict(range=[0, None]))
+
 
 def create_stacked_bar_chart():
     df = data_reader.read_daily_macros()
@@ -18,6 +19,34 @@ def create_stacked_bar_chart():
     df['proteins'] = df['proteins'] / df['total'] * 100
     df_melted = df.melt(id_vars='date', value_vars=['carbs', 'fats', 'proteins'], var_name='category', value_name='percentage')
     return px.bar(df_melted, x='date', y='percentage', color='category', title='Daily Macronutrient Distribution', labels={'percentage': 'Percentage (%)'})
+
+
+def preprocess_cycling_data():
+    df = pd.read_csv("data/biking.csv")
+    print(df.columns) 
+    df['duration_in_min'] = df['duration_in_s'].fillna(0) / 60
+    return df
+
+
+def create_cycling_chart():
+    df = preprocess_cycling_data()
+    fig = px.bar(df, x="timestamp", y="duration_in_min")
+    fig.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(
+            title="",             # Hide x-axis label
+            showline=False        # Hide x-axis line
+        ),
+        yaxis=dict(
+            title="",             # Hide y-axis label
+            showline=False        # Hide y-axis line
+        )
+    )
+    return fig
+
+
+fig_cycling = create_cycling_chart()
 
 
 def create_layout():
@@ -54,6 +83,7 @@ def create_layout():
                             "width": "50%",
                             "height": "400px",
                             "display": "inline-block",
+                            "margin-bottom": "100px"
                         },
                     ),
                     html.Div(
@@ -65,17 +95,31 @@ def create_layout():
                             "width": "50%",
                             "height": "400px",
                             "display": "inline-block",
+                            "margin-bottom": "100px"
                         },
                     ),
                     html.Div(
                         [
-                            html.H4("Share of Macronutritients per day"),
+                            html.H4("Share of Macronutrients per day"),
                             dcc.Graph(id='macronutrients-stacked-bar-chart', figure=fig_macronutrients),
                         ],
                         style={
                             "width": "50%",
                             "height": "400px",
                             "display": "inline-block",
+                            "margin-bottom": "100px"
+                        }
+                    ),
+                    html.Div(
+                        [
+                            html.H4("Cycling Duration per Day"),
+                            dcc.Graph(id='cycling-line-chart', figure=fig_cycling),
+                        ],
+                        style={
+                            "width": "50%",
+                            "height": "400px",
+                            "display": "inline-block",
+                            "margin-bottom": "100px"
                         }
                     )
                
