@@ -21,8 +21,9 @@
 {% endwith %}
 <button id="toggle-food-entry" onclick="toggleFoodEntry()">Enter Data</button> <!-- Toggle button -->
 <div id="food-entry-section">
-<!-- Wrap the forms in a container div -->
+    <!-- Wrap the forms in a container div -->
     <div class="form-container">
+        <!-- Food Entry Form -->
         <form method="POST">
             <label for="timestamp">Timestamp:</label><br>
             <input type="datetime-local" id="timestamp" name="timestamp" value="" required><br>
@@ -35,8 +36,10 @@
         <script>
             var localTimestamp = new Date();
             localTimestamp.setMinutes(localTimestamp.getMinutes() - localTimestamp.getTimezoneOffset());
-            document.getElementById('timestamp').value = localTimestamp.toISOString().slice(0, 16)
+            document.getElementById('timestamp').value = localTimestamp.toISOString().slice(0, 16);
         </script>
+
+        <!-- Bodyweight Entry Form -->
         <form method="POST">
             <label for="date">date:</label><br>
             <input type="date" id="date" name="date" value="localDate" required><br>
@@ -47,19 +50,35 @@
         <script>
             var localDate = new Date();
             localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
-            document.getElementById('date').value = localDate.toISOString().slice(0, 10);            </script>
-        <script>
-            function toggleFoodEntry() {
-                var section = document.getElementById('food-entry-section');
-                if (section.style.display === 'none') {
-                    section.style.display = 'block';
-                } else {
-                    section.style.display = 'none';
-                }
-            }
+            document.getElementById('date').value = localDate.toISOString().slice(0, 10);
         </script>
+
+        <!-- Cycling Data Entry Form -->
+        <form method="POST" action="/add_cycling_data">
+            <label for="cycling-timestamp">Timestamp:</label><br>
+            <input type="datetime-local" id="cycling-timestamp" name="cycling-timestamp" value="" required><br>
+            <label for="calories">Calories:</label><br>
+            <input type="number" id="calories" name="calories" required><br>
+            <label for="duration">Duration (in minutes):</label><br>
+            <input type="number" id="duration" name="duration" required><br>
+            <label for="name_of_session">Name of Session:</label><br>
+            <input type="text" id="name_of_session" name="name_of_session" required><br>
+            <input type="submit" value="Submit">
+        </form>
     </div>
 </div>
+
+<script>
+    function toggleFoodEntry() {
+        var section = document.getElementById('food-entry-section');
+        if (section.style.display === 'none') {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    }
+</script>
+
 <iframe src="/dashboard" width="100%" height="1150"></iframe>
 
 {% endblock %}

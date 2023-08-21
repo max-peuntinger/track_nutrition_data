@@ -180,3 +180,28 @@ def register_routes(app: Flask) -> None:
             return redirect(url_for("manage_bodyweight"))
         bodyweight_entry_dict = bodyweight_entry.iloc[0].to_dict()
         return render_template("modify_bodyweight.html", entry=bodyweight_entry_dict)
+    
+    @app.route('/add_cycling_data', methods=['POST'])
+    def add_cycling_data():
+        timestamp = request.form['cycling-timestamp']
+        calories = request.form['calories']
+        duration = request.form['duration']
+        name_of_session = request.form['name_of_session']
+
+
+        cycling_data = {
+            'timestamp': timestamp,
+            'calories': int(calories),
+            'duration': int(duration),
+            'name_of_session': name_of_session
+        }
+
+
+        session['data_to_save'] = cycling_data
+
+        sqlwriter = SQLite3Writer('data/bodyweight.db')
+        sqlwriter.create_data('cycling_data', session['data_to_save'])
+
+        flash('Cycling data saved successfully!', 'success')
+        return redirect('/')  # Redirect back to the main page
+
