@@ -3,6 +3,7 @@ import dash_bootstrap_components as dbc
 import plotly.express as px
 from data_tools.data_manager import DataReader
 import pandas as pd
+from typing import Optional
 
 
 data_reader = DataReader("data/bodyweight.db")
@@ -28,19 +29,27 @@ def preprocess_cycling_data():
     return df
 
 
-def create_cycling_chart():
+def create_cycling_chart(start_date: Optional[str] = None, end_date: Optional[str] = None, time_frame: str = "daily"):
     df = preprocess_cycling_data()
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    start_date = pd.to_datetime(start_date) if start_date else None
+    end_date = pd.to_datetime(end_date) if end_date else None
+    if start_date:
+        df = df[df['timestamp'] >= start_date]
+    if end_date:
+        df = df[df['timestamp'] <= end_date]
+    
     fig = px.bar(df, x="timestamp", y="duration_in_min")
     fig.update_layout(
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
         xaxis=dict(
-            title="",             # Hide x-axis label
-            showline=False        # Hide x-axis line
+            title="",
+            showline=False
         ),
         yaxis=dict(
-            title="",             # Hide y-axis label
-            showline=False        # Hide y-axis line
+            title="",
+            showline=False
         )
     )
     return fig

@@ -9,7 +9,7 @@ from flask_bootstrap import Bootstrap
 import plotly.express as px
 from data_tools.data_processing import filter_data_by_date, time_of_day
 from data_tools.data_manager import DataReader
-from charts.charts_plotly import create_layout
+from charts.charts_plotly import create_layout, create_cycling_chart
 from routes import register_routes
 
 app = Flask(__name__)
@@ -232,6 +232,19 @@ def update_weight_chart(
     fig.update_xaxes(showline=False, zeroline=False)
     fig.update_yaxes(showline=False, zeroline=False)
     return fig
+
+
+@dash_app.callback(
+    Output("cycling-line-chart", "figure"),
+    [
+        Input("interval-component", "n_intervals"),
+        Input("date-picker-range", "start_date"),
+        Input("date-picker-range", "end_date"),
+        Input("time-frame-dropdown", "value"),
+    ],
+)
+def update_cycling_chart(_: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str) -> go.Figure:
+    return create_cycling_chart(start_date, end_date, time_frame)
 
 
 if __name__ == "__main__":
