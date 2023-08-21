@@ -188,7 +188,6 @@ def register_routes(app: Flask) -> None:
         duration = request.form['duration']
         name_of_session = request.form['name_of_session']
 
-
         cycling_data = {
             'timestamp': timestamp,
             'calories': int(calories),
@@ -196,12 +195,11 @@ def register_routes(app: Flask) -> None:
             'name_of_session': name_of_session
         }
 
-
         session['data_to_save'] = cycling_data
 
         sqlwriter = SQLite3Writer('data/bodyweight.db')
         sqlwriter.create_data('cycling_data', session['data_to_save'])
 
         flash('Cycling data saved successfully!', 'success')
-        return redirect('/')  # Redirect back to the main page
+        return redirect('/')
 

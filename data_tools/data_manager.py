@@ -116,6 +116,12 @@ class DataReader(DataReaderInterface):
             FROM food_eaten
             GROUP BY date(timestamp)"""
         return self.sql_reader.read_data(query)
+    
+    def read_cycling_data(self) -> pd.DataFrame:
+        query = "SELECT * FROM cycling_data ORDER BY timestamp DESC"
+        data = self.sql_reader.read_data(query)
+        print(data)  # Debug print
+        return self.sql_reader.read_data(query)
 
 
 class SQLite3Writer:
