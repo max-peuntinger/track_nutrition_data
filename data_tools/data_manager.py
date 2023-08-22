@@ -119,8 +119,6 @@ class DataReader(DataReaderInterface):
     
     def read_cycling_data(self) -> pd.DataFrame:
         query = "SELECT * FROM cycling_data ORDER BY timestamp DESC"
-        data = self.sql_reader.read_data(query)
-        print(data)  # Debug print
         return self.sql_reader.read_data(query)
 
 
