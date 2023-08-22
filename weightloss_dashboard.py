@@ -125,11 +125,10 @@ def update_graph_live(
         Input("interval-component", "n_intervals"),
         Input("date-picker-range", "start_date"),
         Input("date-picker-range", "end_date"),
+        Input("time-frame-dropdown", "value"),
     ],
 )
-def update_macronutrients_chart(
-    _: Any, start_date: Optional[str], end_date: Optional[str]
-) -> go.Figure:
+def update_macronutrients_chart(_: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str) -> go.Figure:
     datareader = DataReader("data/bodyweight.db")
     df: pd.DataFrame = datareader.read_food_eaten_data()
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
@@ -139,22 +138,38 @@ def update_macronutrients_chart(
     end_date = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None
     filtered_data_df = filter_data_by_date(df, start_date, end_date)
 
-    grouped = filtered_data_df.groupby("date").agg(
-        carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="sum"),
-        fats=pd.NamedAgg(column="fat_total_g", aggfunc="sum"),
-        proteins=pd.NamedAgg(column="protein_g", aggfunc="sum"),
-    )
+    if time_frame == "weekly":
+        filtered_data_df['week_start'] = filtered_data_df['date'].dt.to_period('W').dt.start_time
+        grouped_data = filtered_data_df.groupby('week_start').agg(
+            carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="mean"),
+            fats=pd.NamedAgg(column="fat_total_g", aggfunc="mean"),
+            proteins=pd.NamedAgg(column="protein_g", aggfunc="mean"),
+        ).reset_index()
+        grouped_data['date'] = grouped_data['week_start']
+    elif time_frame == "monthly":
+        grouped_data = filtered_data_df.groupby(filtered_data_df['date'].dt.to_period('M')).agg(
+            carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="mean"),
+            fats=pd.NamedAgg(column="fat_total_g", aggfunc="mean"),
+            proteins=pd.NamedAgg(column="protein_g", aggfunc="mean"),
+        ).reset_index()
+        grouped_data['date'] = grouped_data['date'].dt.to_timestamp()
+    else:
+        grouped_data = filtered_data_df.groupby('date').agg(
+            carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="mean"),
+            fats=pd.NamedAgg(column="fat_total_g", aggfunc="mean"),
+            proteins=pd.NamedAgg(column="protein_g", aggfunc="mean"),
+        )
 
-    grouped["total"] = grouped["carbs"] + grouped["fats"] + grouped["proteins"]
-    grouped["carbs"] = grouped["carbs"] / grouped["total"] * 100
-    grouped["fats"] = grouped["fats"] / grouped["total"] * 100
-    grouped["proteins"] = grouped["proteins"] / grouped["total"] * 100
+    grouped_data["total"] = grouped_data["carbs"] + grouped_data["fats"] + grouped_data["proteins"]
+    grouped_data["carbs"] = grouped_data["carbs"] / grouped_data["total"] * 100
+    grouped_data["fats"] = grouped_data["fats"] / grouped_data["total"] * 100
+    grouped_data["proteins"] = grouped_data["proteins"] / grouped_data["total"] * 100
 
     fig = go.Figure(
         data=[
-            go.Bar(name="Carbs", x=grouped.index, y=grouped["carbs"]),
-            go.Bar(name="Fats", x=grouped.index, y=grouped["fats"]),
-            go.Bar(name="Proteins", x=grouped.index, y=grouped["proteins"]),
+            go.Bar(name="Carbs", x=grouped_data['date'], y=grouped_data["carbs"]),
+            go.Bar(name="Fats", x=grouped_data['date'], y=grouped_data["fats"]),
+            go.Bar(name="Proteins", x=grouped_data['date'], y=grouped_data["proteins"]),
         ]
     )
     fig.update_layout(barmode="stack", margin=dict(l=20, r=20, t=20, b=60))

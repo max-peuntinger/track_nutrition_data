@@ -5,7 +5,6 @@ from data_tools.data_manager import DataReader
 import pandas as pd
 from typing import Optional
 
-
 data_reader = DataReader("data/bodyweight.db")
 bodyweight_data = data_reader.read_bodyweight_data()
 fig = px.line(bodyweight_data, x="date", y="bodyweight")
@@ -25,7 +24,6 @@ def create_stacked_bar_chart():
 def preprocess_cycling_data():
     data_reader = DataReader(db_name="data/bodyweight.db")
     cycling_data = data_reader.read_cycling_data()
-    print(cycling_data)  # Print the data to check
     return cycling_data
 
 
@@ -38,8 +36,18 @@ def create_cycling_chart(start_date: Optional[str] = None, end_date: Optional[st
         df = df[df['timestamp'] >= start_date]
     if end_date:
         df = df[df['timestamp'] <= end_date]
-    
-    fig = px.bar(df, x="timestamp", y="duration")
+
+    if time_frame == "weekly":
+        df['week_start'] = df['timestamp'].dt.to_period('W').dt.start_time
+        grouped_data = df.groupby('week_start')['duration'].mean().reset_index()
+        grouped_data['timestamp'] = grouped_data['week_start']
+    elif time_frame == "monthly":
+        grouped_data = df.groupby(df['timestamp'].dt.to_period('M'))['duration'].mean().reset_index()
+        grouped_data['timestamp'] = grouped_data['timestamp'].dt.to_timestamp()
+    else:
+        grouped_data = df
+
+    fig = px.bar(grouped_data, x="timestamp", y="duration")
     fig.update_layout(
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
