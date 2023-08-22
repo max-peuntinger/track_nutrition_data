@@ -141,23 +141,23 @@ def update_macronutrients_chart(_: Any, start_date: Optional[str], end_date: Opt
     if time_frame == "weekly":
         filtered_data_df['week_start'] = filtered_data_df['date'].dt.to_period('W').dt.start_time
         grouped_data = filtered_data_df.groupby('week_start').agg(
-            carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="mean"),
-            fats=pd.NamedAgg(column="fat_total_g", aggfunc="mean"),
-            proteins=pd.NamedAgg(column="protein_g", aggfunc="mean"),
+            carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="sum"),
+            fats=pd.NamedAgg(column="fat_total_g", aggfunc="sum"),
+            proteins=pd.NamedAgg(column="protein_g", aggfunc="sum"),
         ).reset_index()
         grouped_data['date'] = grouped_data['week_start']
     elif time_frame == "monthly":
         grouped_data = filtered_data_df.groupby(filtered_data_df['date'].dt.to_period('M')).agg(
-            carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="mean"),
-            fats=pd.NamedAgg(column="fat_total_g", aggfunc="mean"),
-            proteins=pd.NamedAgg(column="protein_g", aggfunc="mean"),
+            carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="sum"),
+            fats=pd.NamedAgg(column="fat_total_g", aggfunc="sum"),
+            proteins=pd.NamedAgg(column="protein_g", aggfunc="sum"),
         ).reset_index()
         grouped_data['date'] = grouped_data['date'].dt.to_timestamp()
     else:
         grouped_data = filtered_data_df.groupby('date').agg(
-            carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="mean"),
-            fats=pd.NamedAgg(column="fat_total_g", aggfunc="mean"),
-            proteins=pd.NamedAgg(column="protein_g", aggfunc="mean"),
+            carbs=pd.NamedAgg(column="carbohydrates_total_g", aggfunc="sum"),
+            fats=pd.NamedAgg(column="fat_total_g", aggfunc="sum"),
+            proteins=pd.NamedAgg(column="protein_g", aggfunc="sum"),
         )
 
     grouped_data["total"] = grouped_data["carbs"] + grouped_data["fats"] + grouped_data["proteins"]
@@ -167,16 +167,15 @@ def update_macronutrients_chart(_: Any, start_date: Optional[str], end_date: Opt
 
     fig = go.Figure(
         data=[
-            go.Bar(name="Carbs", x=grouped_data['date'], y=grouped_data["carbs"]),
-            go.Bar(name="Fats", x=grouped_data['date'], y=grouped_data["fats"]),
-            go.Bar(name="Proteins", x=grouped_data['date'], y=grouped_data["proteins"]),
+           go.Bar(name="Carbs", x=grouped_data.index, y=grouped_data["carbs"]),
+            go.Bar(name="Fats", x=grouped_data.index, y=grouped_data["fats"]),
+            go.Bar(name="Proteins", x=grouped_data.index, y=grouped_data["proteins"]),
         ]
     )
     fig.update_layout(barmode="stack", margin=dict(l=20, r=20, t=20, b=60))
     fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
     fig.update_xaxes(showline=False, zeroline=False)
     fig.update_yaxes(showline=False, zeroline=False)
-
     return fig
 
 
