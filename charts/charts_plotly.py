@@ -29,7 +29,7 @@ def preprocess_cycling_data():
 
 def create_cycling_chart(start_date: Optional[str] = None, end_date: Optional[str] = None, time_frame: str = "daily"):
     df = preprocess_cycling_data()
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['timestamp'] = pd.to_datetime(df['timestamp'], format="%Y-%m-%dT%H:%M")
     start_date = pd.to_datetime(start_date) if start_date else None
     end_date = pd.to_datetime(end_date) if end_date else None
     if start_date:
