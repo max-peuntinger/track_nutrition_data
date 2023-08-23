@@ -52,7 +52,7 @@ def update_graph_live(
     """
     datareader = DataReader("data/bodyweight.db")
     df: pd.DataFrame = datareader.read_food_eaten_data()
-    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+    df["timestamp"] = pd.to_datetime(df["timestamp"], format='mixed', utc=True)
     df["timestamp"] = df["timestamp"]
 
     df["time_of_day"] = df["timestamp"].apply(time_of_day)
@@ -131,7 +131,7 @@ def update_graph_live(
 def update_macronutrients_chart(_: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str) -> go.Figure:
     datareader = DataReader("data/bodyweight.db")
     df: pd.DataFrame = datareader.read_food_eaten_data()
-    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+    df["timestamp"] = pd.to_datetime(df["timestamp"], format='mixed', utc=True)
     df["date"] = df["timestamp"].dt.date
     df["date"] = pd.to_datetime(df["date"])
     start_date = datetime.strptime(start_date, "%Y-%m-%d") if start_date else None
