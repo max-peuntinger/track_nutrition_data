@@ -216,25 +216,32 @@ def update_weight_chart(
     end_date = datetime.strptime(end_date, "%Y-%m-%d") if end_date else None
     filtered_weight_data = filter_data_by_date(weight_data, start_date, end_date)
 
+    weight_grouping_spec = {
+        "bodyweight": pd.NamedAgg(column="bodyweight", aggfunc="mean")
+    }
     if time_frame == "weekly":
-        filtered_weight_data["week_start"] = (
-            filtered_weight_data["date"].dt.to_period("W").dt.start_time
-        )
-        grouped_data = (
-            filtered_weight_data.groupby("week_start")["bodyweight"]
-            .mean()
-            .reset_index()
-        )
-        grouped_data["date"] = grouped_data["week_start"]
+        grouped_data = group_data_by_time_frame(filtered_weight_data, "weekly", "bodyweight", "mean")
+        # grouped_data["date"] = grouped_data["week_start"]
+        # iltered_weight_data["week_start"] = (
+        #     filtered_weight_data["date"].dt.to_period("W").dt.start_time
+        # )
+        # grouped_data = (
+        #     filtered_weight_data.groupby("week_start")["bodyweight"]
+        #     .mean()
+        #     .reset_index()
+        # )
+        # grouped_data["date"] = grouped_data["week_start"]
     elif time_frame == "monthly":
-        grouped_data = (
-            filtered_weight_data.groupby(
-                [filtered_weight_data["date"].dt.to_period("M")]
-            )["bodyweight"]
-            .mean()
-            .reset_index()
-        )
-        grouped_data["date"] = grouped_data["date"].dt.to_timestamp()
+        grouped_data = group_data_by_time_frame(filtered_weight_data, "monthly", "bodyweight", "mean")
+        # grouped_data["date"] = grouped_data["monthly"]
+        # grouped_data = (
+        #     filtered_weight_data.groupby(
+        #         [filtered_weight_data["date"].dt.to_period("M")]
+        #     )["bodyweight"]
+        #     .mean()
+        #     .reset_index()
+        # )
+        # grouped_data["date"] = grouped_data["date"].dt.to_timestamp()
     else:
         grouped_data = filtered_weight_data
 
@@ -246,6 +253,19 @@ def update_weight_chart(
     fig.update_xaxes(showline=False, zeroline=False)
     fig.update_yaxes(showline=False, zeroline=False)
     return fig
+
+
+def group_data_by_time_frame(df, time_frame, column_name, aggfunc):
+    if time_frame == "weekly":
+        df['week_start'] = df['date'].dt.to_period('W').dt.start_time
+        grouped_data = df.groupby('week_start').agg({column_name: aggfunc}).reset_index()
+        grouped_data['date'] = grouped_data['week_start']
+        return grouped_data
+    elif time_frame == "monthly":
+        df['month'] = df['date'].dt.to_period('M').dt.start_time # Create 'month' column
+        grouped_data = df.groupby('month').agg({column_name: aggfunc}).reset_index()
+        grouped_data['date'] = grouped_data['month']
+        return grouped_data
 
 
 @dash_app.callback(
