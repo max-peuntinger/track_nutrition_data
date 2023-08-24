@@ -21,8 +21,10 @@ def get_food_info_from_api(food_item, weight):
             data = response.json()
             return data
         else:
+            print("Problem with FoodNinja API at https://api-ninjas.com/api/nutrition")
             print(f"Error: {response.status_code} - {response.text}")
             return None
     except requests.exceptions.RequestException as e:
+        print("Problem with FoodNinja API at https://api-ninjas.com/api/nutrition")
         print(f"Error: {e}")
         return None
