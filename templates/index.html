@@ -65,6 +65,11 @@
             <input type="text" id="name_of_session" name="name_of_session" required><br>
             <input type="submit" value="Submit">
         </form>
+        <script>
+            var cyclingTimestamp = new Date();
+            cyclingTimestamp.setMinutes(cyclingTimestamp.getMinutes() - cyclingTimestamp.getTimezoneOffset());
+            document.getElementById('cycling-timestamp').value = cyclingTimestamp.toISOString().slice(0, 16);
+        </script>
     </div>
 </div>
 
