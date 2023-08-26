@@ -1,7 +1,7 @@
 import pandas as pd
 import sqlite3
 from typing import Dict
-
+from decorators import log_execution_time
 
 class _SQLite3Reader:
     """A private class to read data from an SQLite3 database.
@@ -93,20 +93,25 @@ class DataReader(DataReaderInterface):
     def __init__(self, db_name: str):
         self.sql_reader = _SQLite3Reader(db_name)
 
+    @log_execution_time
     def read_food_eaten_data(self) -> pd.DataFrame:
         query = "SELECT * FROM food_eaten ORDER BY timestamp DESC"
         return self.sql_reader.read_data(query)
 
+    @log_execution_time
     def read_bodyweight_data(self) -> pd.DataFrame:
         query = "SELECT * FROM bodyweight ORDER BY date DESC"
         return self.sql_reader.read_data(query)
 
+    @log_execution_time
     def read_single_bodyweight_entry(self, id: int) -> pd.DataFrame:
         return self.sql_reader.read_single_data(id=id, table="bodyweight")
 
+    @log_execution_time
     def read_single_food_entry(self, id: int) -> pd.DataFrame:
         return self.sql_reader.read_single_data(id=id, table="food_eaten")
-    
+
+    @log_execution_time
     def read_daily_macros(self):
         query = """SELECT
             date(timestamp, '-2 hours') as date,
@@ -116,7 +121,8 @@ class DataReader(DataReaderInterface):
             FROM food_eaten
             GROUP BY date(timestamp)"""
         return self.sql_reader.read_data(query)
-    
+
+    @log_execution_time
     def read_cycling_data(self) -> pd.DataFrame:
         query = "SELECT * FROM cycling_data ORDER BY timestamp DESC"
         return self.sql_reader.read_data(query)
@@ -132,6 +138,7 @@ class SQLite3Writer:
     def __init__(self, db_path: str):
         self.db_path = db_path
 
+    @log_execution_time
     def create_data(self, table_name: str, data: Dict[str, any]) -> None:
         """Inserts a new row into the specified table.
 
@@ -151,6 +158,7 @@ class SQLite3Writer:
         conn.commit()
         conn.close()
 
+    @log_execution_time
     def update_data(self, table_name: str, data: Dict[str, any], row_id: int) -> None:
         """Updates a row in the specified table.
 
@@ -172,6 +180,7 @@ class SQLite3Writer:
         conn.commit()
         conn.close()
 
+    @log_execution_time
     def delete_data(self, table_name: str, row_id: int) -> None:
         """Deletes a row from the specified table.
 
