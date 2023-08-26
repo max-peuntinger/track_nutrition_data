@@ -4,6 +4,7 @@ import plotly.express as px
 from data_tools.data_manager import DataReader
 import pandas as pd
 from typing import Optional
+from decorators import log_execution_time
 
 data_reader = DataReader("data/bodyweight.db")
 bodyweight_data = data_reader.read_bodyweight_data()
@@ -11,6 +12,7 @@ fig = px.line(bodyweight_data, x="date", y="bodyweight")
 fig.update_layout(yaxis=dict(range=[0, None]))
 
 
+@log_execution_time
 def create_stacked_bar_chart():
     df = data_reader.read_daily_macros()
     df['total'] = df['carbs'] + df['fats'] + df['proteins']
@@ -21,12 +23,14 @@ def create_stacked_bar_chart():
     return px.bar(df_melted, x='date', y='percentage', color='category', title='Daily Macronutrient Distribution', labels={'percentage': 'Percentage (%)'})
 
 
+@log_execution_time
 def preprocess_cycling_data():
     data_reader = DataReader(db_name="data/bodyweight.db")
     cycling_data = data_reader.read_cycling_data()
     return cycling_data
 
 
+@log_execution_time
 def create_cycling_chart(start_date: Optional[str] = None, end_date: Optional[str] = None, time_frame: str = "daily"):
     df = preprocess_cycling_data()
     df['timestamp'] = pd.to_datetime(df['timestamp'], format="%Y-%m-%dT%H:%M")
@@ -66,6 +70,7 @@ def create_cycling_chart(start_date: Optional[str] = None, end_date: Optional[st
 fig_cycling = create_cycling_chart()
 
 
+@log_execution_time
 def create_layout():
     fig_macronutrients = create_stacked_bar_chart()
     layout = html.Div(

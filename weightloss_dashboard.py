@@ -1,5 +1,6 @@
 from datetime import datetime
 import pandas as pd
+import logging
 from typing import Optional, Any
 import plotly.graph_objects as go
 from dash import Dash
@@ -11,6 +12,24 @@ from data_tools.data_processing import filter_data_by_date, time_of_day
 from data_tools.data_manager import DataReader
 from charts.charts_plotly import create_layout, create_cycling_chart
 from routes import register_routes
+from decorators import log_execution_time
+
+def clear_default_logger():
+    # Clear any existing handlers on the root logger
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
+    # Set logging level
+    logging.root.setLevel(logging.INFO)
+
+    # Create a file handler
+    file_handler = logging.FileHandler('app.log')
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+
+    # Add the handler to the root logger
+    logging.root.addHandler(file_handler)
+
 
 app = Flask(__name__)
 register_routes(app)
@@ -18,6 +37,10 @@ Bootstrap(app)
 app.secret_key = "your_secret_key"
 dash_app = Dash(__name__, server=app, url_base_pathname="/dashboard/")
 dash_app.layout = create_layout()
+
+clear_default_logger()
+logging.basicConfig(filename='app.log', level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 @dash_app.callback(
@@ -29,6 +52,7 @@ dash_app.layout = create_layout()
         Input("time-frame-dropdown", "value"),
     ],
 )
+@log_execution_time #  logger needs to be inside inside dash callback
 def update_graph_live(
     _: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str
 ) -> go.Figure:
@@ -49,7 +73,8 @@ def update_graph_live(
 
     Note:
         The function handles different time frames ("weekly", "monthly") and ensures that all required columns are present in the grouped data. It also adds text annotations for total calories on the chart.
-    """
+        """
+    
     datareader = DataReader("data/bodyweight.db")
     df: pd.DataFrame = datareader.read_food_eaten_data()
     df["timestamp"] = pd.to_datetime(df["timestamp"], format='mixed', utc=True)
@@ -128,7 +153,9 @@ def update_graph_live(
         Input("time-frame-dropdown", "value"),
     ],
 )
+@log_execution_time #  logger needs to be inside inside dash callback
 def update_macronutrients_chart(_: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str) -> go.Figure:
+    
     datareader = DataReader("data/bodyweight.db")
     df: pd.DataFrame = datareader.read_food_eaten_data()
     df["timestamp"] = pd.to_datetime(df["timestamp"], format='mixed', utc=True)
@@ -176,6 +203,7 @@ def update_macronutrients_chart(_: Any, start_date: Optional[str], end_date: Opt
     fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
     fig.update_xaxes(showline=False, zeroline=False)
     fig.update_yaxes(showline=False, zeroline=False)
+    
     return fig
 
 
@@ -188,6 +216,7 @@ def update_macronutrients_chart(_: Any, start_date: Optional[str], end_date: Opt
         Input("time-frame-dropdown", "value"),
     ],
 )
+@log_execution_time #  logger needs to be inside inside dash callback
 def update_weight_chart(
     _: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str
 ) -> go.Figure:
@@ -209,6 +238,7 @@ def update_weight_chart(
     Note:
         The function handles different time frames ("daily", "weekly", "monthly") and groups the data accordingly. The line chart provides a visual representation of bodyweight trends over the selected period.
     """
+    
     datareader = DataReader("data/bodyweight.db")
     weight_data = datareader.read_bodyweight_data()
     weight_data["date"] = pd.to_datetime(weight_data["date"])
@@ -252,6 +282,7 @@ def update_weight_chart(
     fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)")
     fig.update_xaxes(showline=False, zeroline=False)
     fig.update_yaxes(showline=False, zeroline=False)
+
     return fig
 
 
@@ -277,9 +308,10 @@ def group_data_by_time_frame(df, time_frame, column_name, aggfunc):
         Input("time-frame-dropdown", "value"),
     ],
 )
+@log_execution_time #  logger needs to be inside inside dash callback
 def update_cycling_chart(_: Any, start_date: Optional[str], end_date: Optional[str], time_frame: str) -> go.Figure:
     return create_cycling_chart(start_date, end_date, time_frame)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
